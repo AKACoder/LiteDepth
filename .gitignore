@@ -1,0 +1,13 @@
+/local/
+.env
+.env.*
+/litedepth
+/litedepth.exe
+dist/
+.DS_Store
+*.mp4
+*.mov
+*.mkv
+temp/
+internal/depth/data/*.onnx
+internal/depth/ort/

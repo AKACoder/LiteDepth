@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LiteDepth · Pure CPU Video Depth Generator</title>
+  <meta name="description" content="Generate smooth grayscale depth videos with a single command. Embedded Depth Anything V2 Small model and ONNX Runtime in a standalone binary. No GPU, Python, or CUDA required.">
+  <link rel="stylesheet" href="site.css">
+</head>
+<body>
+  <div class="ambient-bg"></div>
+  <div class="ambient-grid"></div>
+
+  <!-- Header Navigation -->
+  <header class="header-nav">
+    <div class="container nav-wrapper">
+      <a href="#" class="logo-link">
+        <div class="logo-symbol">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+            <polyline points="2 17 12 22 22 17"></polyline>
+            <polyline points="2 12 12 17 22 12"></polyline>
+          </svg>
+        </div>
+        <span class="logo-text">LiteDepth</span>
+      </a>
+
+      <div class="nav-controls">
+        <!-- Bilingual Segmented Switcher -->
+        <div class="segmented-lang" role="group" aria-label="Language Selector">
+          <button type="button" class="lang-option active" data-lang="en" onclick="setLanguage('en')">EN</button>
+          <button type="button" class="lang-option" data-lang="zh" onclick="setLanguage('zh')">中文</button>
+        </div>
+
+        <a id="nav-github-link" href="https://github.com/AKACoder/LiteDepth" target="_blank" rel="noopener noreferrer" class="nav-link-btn">
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+          </svg>
+          <span data-i18n="nav_source">GitHub</span>
+        </a>
+        <a id="nav-download-link" href="#downloads" class="nav-link-btn primary">
+          <span data-i18n="nav_download">Download</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="container">
+      <div class="hero-pill">
+        <span class="pill-dot"></span>
+        <span data-i18n="hero_badge">MONOCULAR VIDEO DEPTH · PURE CPU BINARY</span>
+      </div>
+      <h1 class="hero-title" data-i18n="hero_title">Turn any video into coherent depth</h1>
+      <p class="hero-description" data-i18n="hero_desc">
+        Generate smooth grayscale depth videos with a single command. Embedded Depth Anything V2 Small model and ONNX Runtime in a standalone binary. No GPU, Python, or CUDA required.
+      </p>
+      <div class="hero-cta-group">
+        <a href="#downloads" class="primary-cta-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          <span data-i18n="hero_btn_dl">Get Pre-built Binaries</span>
+        </a>
+        <div class="hero-cmd-pill">
+          <span class="prompt-char">$</span>
+          <code>./litedepth clip.mp4</code>
+          <button type="button" class="btn-inline-copy" onclick="copySnippet('./litedepth clip.mp4', this)">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+            <span class="copy-text" data-i18n="copy">Copy</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive Studio Showcase -->
+  <section class="showcase-stage">
+    <div class="container">
+      <div class="stage-header">
+        <h2 class="stage-title" data-i18n="showcase_title">Side-by-Side Depth Results</h2>
+        <p class="stage-sub" data-i18n="showcase_sub">
+          Real CPU outputs. Left: original footage. Right: standardized depth, near-bright and far-dark.
+        </p>
+      </div>
+
+      <!-- Modern Scene Switcher Deck -->
+      <div class="example-switcher-deck">
+        <div class="scene-dock" role="tablist" aria-label="Demo Clips">
+          <!-- Scene 1: Highway GP -->
+          <button type="button" class="scene-card-btn active" role="tab" aria-selected="true" data-clip="moto" onclick="switchScene('moto')">
+            <div class="scene-icon-wrap">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                <line x1="8" y1="21" x2="16" y2="21"></line>
+                <line x1="12" y1="17" x2="12" y2="21"></line>
+              </svg>
+            </div>
+            <div class="scene-info">
+              <span class="scene-heading" data-i18n="scene_moto_t">Highway Motorcycle GP</span>
+              <span class="scene-specs" data-i18n="scene_moto_s">16:9 Landscape · 60 FPS · Road Depth Perspective</span>
+            </div>
+          </button>
+
+          <!-- Scene 2: Urban Parkour -->
+          <button type="button" class="scene-card-btn" role="tab" aria-selected="false" data-clip="parkour" onclick="switchScene('parkour')">
+            <div class="scene-icon-wrap">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+                <line x1="12" y1="18" x2="12.01" y2="18"></line>
+              </svg>
+            </div>
+            <div class="scene-info">
+              <span class="scene-heading" data-i18n="scene_parkour_t">Urban Wall Parkour</span>
+              <span class="scene-specs" data-i18n="scene_parkour_s">9:16 Portrait · 60 FPS · Foreground Human Geometry</span>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Studio Precision Monitor -->
+      <div id="monitor-frame" class="monitor-frame frame-landscape">
+        <div class="compare-legend" aria-hidden="true">
+          <span class="legend-cell">
+            <span class="legend-dot"></span>
+            <span data-i18n="badge_source">RGB SOURCE</span>
+          </span>
+          <span class="legend-cell">
+            <span class="legend-dot"></span>
+            <span data-i18n="badge_depth">Depth</span>
+          </span>
+        </div>
+        <div class="video-stage-canvas">
+          <video id="studio-player" class="monitor-video" muted loop playsinline controls preload="metadata" aria-label="LiteDepth side-by-side comparison"></video>
+
+          <div id="playback-notice" class="playback-fallback">
+            <div>
+              <p style="font-size: 15px; color: #ffffff; margin-bottom: 6px;" data-i18n="fallback_title">Connecting to media bucket…</p>
+              <p style="font-size: 13px; color: #94a3b8;" data-i18n="fallback_desc">If video does not autoplay, please verify storage bucket availability.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Telemetry Footer -->
+        <div class="monitor-telemetry">
+          <div class="telemetry-left">
+            <span id="clip-name" class="clip-name-label">Highway GP (Landscape)</span>
+            <span style="color: rgba(255,255,255,0.15)">/</span>
+            <span id="clip-meta">2052×576 · 60.00 FPS · H.264</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Technical Features Grid (No Emojis, Pure Craft) -->
+  <section class="features-container">
+    <div class="container">
+      <div class="section-headline">
+        <span class="section-tag" data-i18n="feat_tag">ENGINEERING HIGHLIGHTS</span>
+        <h2 class="section-main-title" data-i18n="feat_title">Engineered for Portability & Precision</h2>
+        <p class="section-sub-desc" data-i18n="feat_desc">Encapsulating cutting-edge monocular video depth estimation into a frictionless CLI binary.</p>
+      </div>
+
+      <div class="cards-quad-grid">
+        <!-- Feature 1 -->
+        <div class="quad-card">
+          <div class="card-top-meta">
+            <div class="card-vector-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
+                <rect x="9" y="9" width="6" height="6"></rect>
+                <line x1="9" y1="1" x2="9" y2="4"></line>
+                <line x1="15" y1="1" x2="15" y2="4"></line>
+                <line x1="9" y1="20" x2="9" y2="23"></line>
+                <line x1="15" y1="20" x2="15" y2="23"></line>
+                <line x1="20" y1="9" x2="23" y2="9"></line>
+                <line x1="20" y1="14" x2="23" y2="14"></line>
+                <line x1="1" y1="9" x2="4" y2="9"></line>
+                <line x1="1" y1="14" x2="4" y2="14"></line>
+              </svg>
+            </div>
+            <span class="card-chip">CPU INFERENCE</span>
+          </div>
+          <h3 class="card-title" data-i18n="feat_1_t">Pure CPU Inference</h3>
+          <p class="card-description" data-i18n="feat_1_d">
+            Completely freed from dedicated GPUs and CUDA drivers. Runs reliably on everyday laptops, headless nodes, or CPU servers.
+          </p>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="quad-card">
+          <div class="card-top-meta">
+            <div class="card-vector-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="16.5" y1="9.4" x2="7.5" y2="4.21"></line>
+                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                <line x1="12" y1="22.08" x2="12" y2="12"></line>
+              </svg>
+            </div>
+            <span class="card-chip">ZERO CONFIG</span>
+          </div>
+          <h3 class="card-title" data-i18n="feat_2_t">Single Binary, Zero Deps</h3>
+          <p class="card-description" data-i18n="feat_2_d">
+            Embedded Depth Anything V2 Small weights and ONNX Runtime libraries. Say goodbye to pip conflicts and fragile Python setups.
+          </p>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="quad-card">
+          <div class="card-top-meta">
+            <div class="card-vector-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+              </svg>
+            </div>
+            <span class="card-chip">FLICKER-FREE</span>
+          </div>
+          <h3 class="card-title" data-i18n="feat_3_t">Temporal Smoothing</h3>
+          <p class="card-description" data-i18n="feat_3_d">
+            Built-in multi-stage temporal smoothing and Look tone mapping to eliminate inter-frame flicker and edge jittering.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive CLI Command Deck -->
+  <section class="cli-section">
+    <div class="container">
+      <div class="section-headline">
+        <span class="section-tag" data-i18n="cli_tag">COMMAND LINE WORKFLOW</span>
+        <h2 class="section-main-title" data-i18n="cli_title">Dead Simple Command Interface</h2>
+        <p class="section-sub-desc" data-i18n="cli_desc">Just provide a video path to trigger automated frame extraction, inference, and video remuxing.</p>
+      </div>
+
+      <div class="cli-deck-wrapper">
+        <!-- Command Modes -->
+        <div class="cli-deck-tabs">
+          <button type="button" class="cli-tab-item active" data-mode="full" onclick="switchCliMode('full')">
+            <span data-i18n="cli_m1">1. Full Export</span>
+          </button>
+          <button type="button" class="cli-tab-item" data-mode="preview" onclick="switchCliMode('preview')">
+            <span data-i18n="cli_m2">2. Preview Sheet</span>
+          </button>
+          <button type="button" class="cli-tab-item" data-mode="duration" onclick="switchCliMode('duration')">
+            <span data-i18n="cli_m3">3. Short Clip</span>
+          </button>
+        </div>
+
+        <div class="cli-code-canvas">
+          <div id="cli-comment" class="cli-comment-line"># Export full depth video (auto-scaled to &lt;= 1024px, preserving audio)</div>
+          <div class="cli-cmd-row">
+            <div>
+              <span class="cli-prompt-symbol">$</span>
+              <code id="cli-command-text" class="cli-cmd-text">./litedepth clip.mp4</code>
+            </div>
+            <button type="button" class="cli-copy-btn" onclick="copySnippet(document.getElementById('cli-command-text').textContent, this)">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              <span class="copy-text" data-i18n="copy">Copy</span>
+            </button>
+          </div>
+
+          <div class="cli-specs-dock">
+            <div class="cli-spec-cell">
+              <span data-i18n="spec_out_lbl">OUTPUT PATH</span>
+              <strong id="cli-spec-out">clip.depth.mp4</strong>
+            </div>
+            <div class="cli-spec-cell">
+              <span data-i18n="spec_curve_lbl">DEPTH SCALE</span>
+              <strong data-i18n="spec_curve_val">Near-bright, far-dark (0 ~ 255)</strong>
+            </div>
+            <div class="cli-spec-cell">
+              <span data-i18n="spec_scale_lbl">RESOLUTION</span>
+              <strong data-i18n="spec_scale_val">Auto-constrained long edge ≤ 1024</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Download Release Matrix -->
+  <section id="downloads" class="downloads-section">
+    <div class="container">
+      <div class="section-headline">
+        <span class="section-tag" data-i18n="dl_tag">STANDALONE BINARIES</span>
+        <h2 class="section-main-title" data-i18n="dl_title">Cross-Platform Pre-built Binaries</h2>
+        <p class="section-sub-desc" data-i18n="dl_desc">Native builds for Apple Silicon macOS, Linux, and 64-bit Windows. Download, chmod +x, and run directly.</p>
+      </div>
+
+      <div class="dl-matrix-container">
+        <!-- macOS ARM -->
+        <div class="dl-row">
+          <div class="platform-badge">
+            <div class="os-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.62-.75 1.04-1.8 1.01-2.87-.96.04-2.14.65-2.83 1.45-.6.69-1.12 1.77-1.03 2.84 1.07.08 2.23-.67 2.85-1.42z"/>
+              </svg>
+            </div>
+            <div>
+              <span class="platform-name">macOS</span>
+              <span class="platform-arch">Apple Silicon (M1/M2/M3/M4)</span>
+            </div>
+          </div>
+          <span class="file-identity">litedepth-darwin-arm64</span>
+          <a class="btn-download-asset" href="https://github.com/AKACoder/LiteDepth/releases/latest/download/litedepth-darwin-arm64" data-i18n="dl_btn">Download</a>
+        </div>
+
+        <!-- Linux x64 -->
+        <div class="dl-row">
+          <div class="platform-badge">
+            <div class="os-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="16" rx="2"></rect>
+                <polyline points="7 9 10 12 7 15"></polyline>
+                <line x1="13" y1="15" x2="17" y2="15"></line>
+              </svg>
+            </div>
+            <div>
+              <span class="platform-name">Linux</span>
+              <span class="platform-arch">x86_64</span>
+            </div>
+          </div>
+          <span class="file-identity">litedepth-linux-amd64</span>
+          <a class="btn-download-asset" href="https://github.com/AKACoder/LiteDepth/releases/latest/download/litedepth-linux-amd64" data-i18n="dl_btn">Download</a>
+        </div>
+
+        <!-- Linux ARM64 -->
+        <div class="dl-row">
+          <div class="platform-badge">
+            <div class="os-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="16" rx="2"></rect>
+                <polyline points="7 9 10 12 7 15"></polyline>
+                <line x1="13" y1="15" x2="17" y2="15"></line>
+              </svg>
+            </div>
+            <div>
+              <span class="platform-name">Linux</span>
+              <span class="platform-arch">ARM64</span>
+            </div>
+          </div>
+          <span class="file-identity">litedepth-linux-arm64</span>
+          <a class="btn-download-asset" href="https://github.com/AKACoder/LiteDepth/releases/latest/download/litedepth-linux-arm64" data-i18n="dl_btn">Download</a>
+        </div>
+
+        <!-- Windows x64 -->
+        <div class="dl-row">
+          <div class="platform-badge">
+            <div class="os-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4h-13.051M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-13.051-1.801"/>
+              </svg>
+            </div>
+            <div>
+              <span class="platform-name">Windows</span>
+              <span class="platform-arch">64-bit (.exe)</span>
+            </div>
+          </div>
+          <span class="file-identity">litedepth-windows-amd64.exe</span>
+          <a class="btn-download-asset" href="https://github.com/AKACoder/LiteDepth/releases/latest/download/litedepth-windows-amd64.exe" data-i18n="dl_btn">Download</a>
+        </div>
+      </div>
+
+      <div class="ffmpeg-pill-notice" data-i18n="ffmpeg_notice">
+        LiteDepth requires ffmpeg and ffprobe for media packaging. If missing, LiteDepth will automatically prompt and download static builds to <code>~/.litedepth/bin/</code>.
+      </div>
+    </div>
+  </section>
+
+  <!-- Site Footer -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p>LiteDepth · Open source under Apache-2.0 License</p>
+      <div class="footer-links">
+        <a href="https://github.com/DepthAnything/Depth-Anything-V2" target="_blank" rel="noopener noreferrer">Depth Anything V2</a>
+        <span>·</span>
+        <a href="https://onnxruntime.ai" target="_blank" rel="noopener noreferrer">ONNX Runtime</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const MEDIA_BASE = "https://lite-depth.akacoder.net/demo";
+
+    const SCENES = {
+      moto: {
+        file: "moto-compare.mp4",
+        frameClass: "frame-landscape",
+        titleZh: "公路赛道竞速 (横屏)",
+        titleEn: "Highway GP (Landscape)",
+        meta: "2052×576 · 60.00 FPS · H.264"
+      },
+      parkour: {
+        file: "parkour-compare.mp4",
+        frameClass: "frame-portrait",
+        titleZh: "城市建筑跑酷 (竖屏)",
+        titleEn: "Urban Parkour (Portrait)",
+        meta: "1156×1024 · 60.00 FPS · H.264"
+      }
+    };
+
+    const CLI_MODES = {
+      full: {
+        cmd: "./litedepth clip.mp4",
+        commentZh: "# 导出整段深度视频（长边自动适配至 1024px，无损封装原音轨）",
+        commentEn: "# Export full depth video (auto-scaled to <= 1024px, preserving audio)",
+        out: "clip.depth.mp4"
+      },
+      preview: {
+        cmd: "./litedepth --preview clip.mp4",
+        commentZh: "# 极速抽取关键帧，生成左原片右深度对照长图并自动调起查看",
+        commentEn: "# Fast sample keyframes, create side-by-side contact sheet and auto-open",
+        out: "clip.depth.preview.jpg"
+      },
+      duration: {
+        cmd: "./litedepth --duration 5 clip.mp4",
+        commentZh: "# 仅处理前 5 秒内容，极速检验动态景深效果",
+        commentEn: "# Process only first 5 seconds to rapidly verify motion depth",
+        out: "clip.depth.mp4"
+      }
+    };
+
+    const I18N = {
+      zh: {
+        nav_source: "源码",
+        nav_download: "下载",
+        hero_badge: "单目视频深度估计 · 纯 CPU 单二进制",
+        hero_title: "将普通视频\n一键转为平滑深度视频",
+        hero_desc: "无需独立显卡或配置复杂的 Python/CUDA 环境。内嵌 Depth Anything V2 Small 模型与 ONNX Runtime 推理引擎，在本地普通笔记本或台式机上一键生成标准化灰度深度视频。",
+        hero_btn_dl: "获取预编译程序",
+        copy: "复制",
+        copied: "已复制",
+        showcase_title: "实测对比效果",
+        showcase_sub: "纯 CPU 本地推理实录。左侧为原视频，右侧为标准化深度成片（近亮远暗）。",
+        scene_moto_t: "公路赛道竞速",
+        scene_moto_s: "16:9 横屏 · 60 FPS · 道路远景大纵深",
+        scene_parkour_t: "城市建筑跑酷",
+        scene_parkour_s: "9:16 竖屏 · 60 FPS · 近景人体与几何边缘",
+        badge_source: "RGB 原片",
+        badge_depth: "深度",
+        fallback_title: "正在连接媒体存储源…",
+        fallback_desc: "若视频未自动播放，请确认存储桶已就绪。",
+        feat_tag: "ENGINEERING HIGHLIGHTS",
+        feat_title: "为便携与极简工程落地打造",
+        feat_desc: "将顶尖的深度视觉模型降维封装为开箱即用的命令行工具。",
+        feat_1_t: "纯 CPU 本地推理",
+        feat_1_d: "完全脱离对 NVIDIA 显卡或 CUDA 驱动的强依赖。无论是普通轻薄本、工控机还是无 GPU 的云服务器，均可稳定完成推理。",
+        feat_2_t: "单二进制零依赖",
+        feat_2_d: "Depth Anything V2 Small 权重与平台 ONNX Runtime 运行库直接打包内嵌进二进制文件，彻底告别 Python 依赖冲突与繁琐配置。",
+        feat_3_t: "连贯时序滤波",
+        feat_3_d: "内置多阶自适应时序平滑与 Look 增强算法，有效平抑单目逐帧估计常见的亮度跳跃与高频闪烁，生成稳定连贯的动态深度图。",
+        cli_tag: "COMMAND LINE WORKFLOW",
+        cli_title: "极致简洁的命令行交互",
+        cli_desc: "开箱即用，只需传入视频路径即可自动化完成抽帧、推理与封装。",
+        cli_m1: "1. 完整导出",
+        cli_m2: "2. 对照长图",
+        cli_m3: "3. 前段试看",
+        spec_out_lbl: "输出路径",
+        spec_curve_lbl: "灰度标尺",
+        spec_curve_val: "近亮远暗 (0 ~ 255)",
+        spec_scale_lbl: "采样规格",
+        spec_scale_val: "长边自动约束 ≤ 1024",
+        dl_tag: "STANDALONE BINARIES",
+        dl_title: "跨平台预编译版本",
+        dl_desc: "原生支持 Apple Silicon macOS、Linux 与 64 位 Windows。下载后赋予执行权限即可直接运行。",
+        dl_btn: "下载",
+        ffmpeg_notice: "运行时仅需 ffmpeg 与 ffprobe 处理媒体封装。若当前系统尚未安装，首次在终端运行 LiteDepth 时将自动引导下载静态构建至 ~/.litedepth/bin/。"
+      },
+      en: {
+        nav_source: "GitHub",
+        nav_download: "Download",
+        hero_badge: "MONOCULAR VIDEO DEPTH · PURE CPU BINARY",
+        hero_title: "Turn any video\ninto coherent depth",
+        hero_desc: "Generate smooth grayscale depth videos with a single command. Embedded Depth Anything V2 Small model and ONNX Runtime in a standalone binary. No GPU, Python, or CUDA required.",
+        hero_btn_dl: "Get Pre-built Binaries",
+        copy: "Copy",
+        copied: "Copied!",
+        showcase_title: "Side-by-Side Depth Results",
+        showcase_sub: "Real CPU outputs. Left: original footage. Right: standardized depth, near-bright and far-dark.",
+        scene_moto_t: "Highway Motorcycle GP",
+        scene_moto_s: "16:9 Landscape · 60 FPS · Road Depth Perspective",
+        scene_parkour_t: "Urban Wall Parkour",
+        scene_parkour_s: "9:16 Portrait · 60 FPS · Foreground Human Geometry",
+        badge_source: "RGB SOURCE",
+        badge_depth: "Depth",
+        fallback_title: "Connecting to media bucket…",
+        fallback_desc: "If video does not autoplay, please verify storage bucket availability.",
+        feat_tag: "ENGINEERING HIGHLIGHTS",
+        feat_title: "Engineered for Portability & Precision",
+        feat_desc: "Encapsulating cutting-edge monocular video depth estimation into a frictionless CLI binary.",
+        feat_1_t: "Pure CPU Inference",
+        feat_1_d: "Completely freed from dedicated GPUs and CUDA drivers. Runs reliably on everyday laptops, headless nodes, or CPU servers.",
+        feat_2_t: "Single Binary, Zero Deps",
+        feat_2_d: "Embedded Depth Anything V2 Small weights and ONNX Runtime libraries. Say goodbye to pip conflicts and fragile Python setups.",
+        feat_3_t: "Temporal Smoothing",
+        feat_3_d: "Built-in multi-stage temporal smoothing and Look tone mapping to eliminate inter-frame flicker and edge jittering.",
+        cli_tag: "COMMAND LINE WORKFLOW",
+        cli_title: "Dead Simple Command Interface",
+        cli_desc: "Just provide a video path to trigger automated frame extraction, inference, and video remuxing.",
+        cli_m1: "1. Full Export",
+        cli_m2: "2. Preview Sheet",
+        cli_m3: "3. Short Clip",
+        spec_out_lbl: "OUTPUT PATH",
+        spec_curve_lbl: "DEPTH SCALE",
+        spec_curve_val: "Near-bright, far-dark (0 ~ 255)",
+        spec_scale_lbl: "RESOLUTION",
+        spec_scale_val: "Auto-constrained long edge ≤ 1024",
+        dl_tag: "STANDALONE BINARIES",
+        dl_title: "Cross-Platform Pre-built Binaries",
+        dl_desc: "Native builds for Apple Silicon macOS, Linux, and 64-bit Windows. Download, chmod +x, and run directly.",
+        dl_btn: "Download",
+        ffmpeg_notice: "LiteDepth requires ffmpeg and ffprobe for media packaging. If missing, LiteDepth will automatically prompt and download static builds to ~/.litedepth/bin/."
+      }
+    };
+
+    let currentLang = "en";
+    let currentScene = "moto";
+    let currentCliMode = "full";
+
+    const urlParams = new URLSearchParams(location.search);
+    const mediaBase = (urlParams.get("media") || MEDIA_BASE).replace(/\/$/, "");
+
+    function detectLang() {
+      const p = urlParams.get("lang");
+      if (p === "zh" || p === "en") return p;
+      return "en";
+    }
+
+    function setLanguage(lang) {
+      currentLang = lang;
+      document.documentElement.lang = lang === "zh" ? "zh-Hans" : "en";
+      try { localStorage.removeItem("litedepth_lang"); } catch (err) {}
+
+      // Buttons
+      document.querySelectorAll(".lang-option").forEach((b) => {
+        b.classList.toggle("active", b.dataset.lang === lang);
+      });
+
+      // Text dictionary
+      const dict = I18N[lang] || I18N.en;
+      document.querySelectorAll("[data-i18n]").forEach((el) => {
+        const k = el.dataset.i18n;
+        if (dict[k]) el.textContent = dict[k];
+      });
+
+      document.title = lang === "zh" 
+        ? "LiteDepth · 纯 CPU 单目视频深度估计工具" 
+        : "LiteDepth · Pure CPU Video Depth Generator";
+
+      updateTelemetry();
+      renderCliMode();
+    }
+
+    function updateTelemetry() {
+      const scene = SCENES[currentScene];
+      const nameEl = document.getElementById("clip-name");
+      if (nameEl && scene) {
+        nameEl.textContent = currentLang === "zh" ? scene.titleZh : scene.titleEn;
+      }
+    }
+
+    function switchScene(key) {
+      if (!SCENES[key]) return;
+      currentScene = key;
+      const scene = SCENES[key];
+
+      // Update switcher dock
+      document.querySelectorAll(".scene-card-btn").forEach((btn) => {
+        const active = btn.dataset.clip === key;
+        btn.classList.toggle("active", active);
+        btn.setAttribute("aria-selected", active ? "true" : "false");
+      });
+
+      // Frame styling class
+      const frame = document.getElementById("monitor-frame");
+      frame.className = "monitor-frame " + scene.frameClass;
+
+      // Video src
+      const player = document.getElementById("studio-player");
+      const fallback = document.getElementById("playback-notice");
+      if (mediaBase) {
+        player.src = mediaBase + "/" + scene.file;
+        fallback.hidden = true;
+        player.play().catch(() => {});
+      } else {
+        fallback.hidden = false;
+      }
+
+      // Telemetry
+      document.getElementById("clip-meta").textContent = scene.meta;
+      updateTelemetry();
+    }
+
+    function switchCliMode(mode) {
+      if (!CLI_MODES[mode]) return;
+      currentCliMode = mode;
+      document.querySelectorAll(".cli-tab-item").forEach((btn) => {
+        btn.classList.toggle("active", btn.dataset.mode === mode);
+      });
+      renderCliMode();
+    }
+
+    function renderCliMode() {
+      const info = CLI_MODES[currentCliMode];
+      if (!info) return;
+      const commentEl = document.getElementById("cli-comment");
+      const cmdEl = document.getElementById("cli-command-text");
+      const outEl = document.getElementById("cli-spec-out");
+      
+      commentEl.textContent = currentLang === "zh" ? info.commentZh : info.commentEn;
+      cmdEl.textContent = info.cmd;
+      outEl.textContent = info.out;
+    }
+
+    function copySnippet(text, btn) {
+      navigator.clipboard.writeText(text).then(() => {
+        const label = btn.querySelector(".copy-text") || btn;
+        const orig = label.textContent;
+        const dict = I18N[currentLang] || I18N.en;
+        label.textContent = dict.copied || "Copied!";
+        setTimeout(() => {
+          label.textContent = orig;
+        }, 2000);
+      });
+    }
+
+    // Startup
+    setLanguage(detectLang());
+    switchScene("moto");
+    switchCliMode("full");
+  </script>
+</body>
+</html>

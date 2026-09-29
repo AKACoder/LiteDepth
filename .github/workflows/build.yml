@@ -1,0 +1,100 @@
+name: build
+
+on:
+  push:
+    branches: [main, master]
+    tags: ["v*"]
+  pull_request:
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - uses: actions/cache@v4
+        with:
+          path: |
+            internal/depth/data
+            internal/depth/ort
+          key: depth-deps-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('scripts/fetchdeps/main.go') }}
+      - run: go run ./scripts/fetchdeps
+      - run: test -z "$(gofmt -l .)"
+      - run: go vet ./...
+      - run: go test ./...
+
+  dist:
+    needs: test
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            goos: darwin
+            goarch: arm64
+          - os: ubuntu-latest
+            goos: linux
+            goarch: amd64
+          - os: ubuntu-24.04-arm
+            goos: linux
+            goarch: arm64
+          - os: windows-latest
+            goos: windows
+            goarch: amd64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - uses: actions/cache@v4
+        with:
+          path: |
+            internal/depth/data
+            internal/depth/ort
+          key: depth-deps-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('scripts/fetchdeps/main.go') }}
+      - name: MinGW (Windows CGO)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          choco install mingw -y --no-progress
+          $candidates = @(
+            "$env:ProgramData\mingw64\mingw64\bin",
+            "$env:ChocolateyInstall\lib\mingw\tools\install\mingw64\bin"
+          )
+          foreach ($d in $candidates) {
+            if (Test-Path (Join-Path $d "gcc.exe")) {
+              Add-Content $env:GITHUB_PATH $d
+              exit 0
+            }
+          }
+          throw "gcc.exe not found after mingw install"
+      - name: Fetch depth model and ONNX Runtime
+        run: go run ./scripts/fetchdeps
+      - name: Build
+        shell: bash
+        env:
+          CGO_ENABLED: "1"
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+        run: |
+          ext=""
+          if [ "${GOOS}" = "windows" ]; then ext=".exe"; fi
+          # Stable names so /releases/latest/download/litedepth-darwin-arm64 keeps working.
+          name="litedepth-${GOOS}-${GOARCH}${ext}"
+          mkdir -p dist
+          go build -trimpath -ldflags "-s -w" -o "dist/${name}" ./cmd/litedepth
+          echo "ASSET=${name}" >> "$GITHUB_ENV"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.ASSET }}
+          path: dist/${{ env.ASSET }}
+      - uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: dist/${{ env.ASSET }}

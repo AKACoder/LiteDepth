@@ -7,6 +7,9 @@ var en = Catalog{
   litedepth clip.mp4
   litedepth --preview --duration 3 clip.mp4
   litedepth --preview --preview-frames 8 clip.mp4
+  litedepth --start 8 --end 12 clip.mp4
+  litedepth --scale 512 --preview clip.mp4
+  litedepth --compare --start 8 --end 12 clip.mp4
   litedepth setup
 
 Writes .depth.mp4 next to the source, at the source frame rate. --frames also writes .depth.frames/.`,
@@ -18,7 +21,11 @@ Writes .depth.mp4 next to the source, at the source frame rate. --frames also wr
 	FlagPreviewFrames: "preview frame count, default 3, at most 12",
 	FlagOutput:        "output path",
 	FlagFrames:        "also write a PNG directory next to the video",
-	FlagDuration:      "process only the first N seconds",
+	FlagStart:         "window start in seconds, inclusive",
+	FlagEnd:           "window end in seconds, exclusive",
+	FlagDuration:      "window length in seconds; with no --start, the first N seconds",
+	FlagScale:         "long edge in pixels, 512 or 1024",
+	FlagCompare:       "also write a side-by-side mp4, source on the left",
 
 	CobraUsage: `Usage:{{if .Runnable}}
   {{.UseLine}}{{end}}{{if .HasAvailableSubCommands}}
@@ -65,6 +72,12 @@ Use "{{.CommandPath}} [command] --help" for more information about a command.{{e
 	ErrExtractFailed:      "frame extract failed: %s",
 	ErrNoExtractedFrames:  "no frames extracted: %s",
 	ErrAnchorFailed:       "anchor frame failed t=%.3f: %s",
+	ErrWindowBoth:         "--end and --duration cannot be used together",
+	ErrWindowNegative:     "time must not be negative",
+	ErrWindowStart:        "start %.3f is outside the clip (%.3fs)",
+	ErrWindowEmpty:        "empty window %.3f-%.3f",
+	ErrScale:              "scale must be 512 or 1024, got %d",
+	ErrComparePreview:     "--compare cannot be used with --preview",
 	ErrStitchFailed:       "stitch failed: %s",
 	ErrSheetCount:         "unexpected contact-sheet frame count",
 	ErrSheetFailed:        "contact sheet failed: %s",
@@ -100,5 +113,8 @@ Use "{{.CommandPath}} [command] --help" for more information about a command.{{e
 	PlanRoute:   "  depth      cpu",
 	PlanPreview: "  preview    %d frames",
 	PlanFull:    "  full       %d frames  mp4",
+	PlanWindow:  "  window     %.1fs-%.1fs",
+	PlanScale:   "  scale      %d",
+	PlanCompare: "  compare    %s",
 	PlanRate:    "  rate       %s",
 }

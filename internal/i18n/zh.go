@@ -7,6 +7,9 @@ var zh = Catalog{
   litedepth clip.mp4
   litedepth --preview --duration 3 clip.mp4
   litedepth --preview --preview-frames 8 clip.mp4
+  litedepth --start 8 --end 12 clip.mp4
+  litedepth --scale 512 --preview clip.mp4
+  litedepth --compare --start 8 --end 12 clip.mp4
   litedepth setup
 
 在原片旁边写出 .depth.mp4，帧率跟原片走。--frames 才会再写出 .depth.frames/。`,
@@ -18,7 +21,11 @@ var zh = Catalog{
 	FlagPreviewFrames: "预览张数，默认 3，最多 12",
 	FlagOutput:        "输出路径",
 	FlagFrames:        "在视频旁边再写出 PNG 目录",
-	FlagDuration:      "只处理开头 N 秒",
+	FlagStart:         "窗口起点，秒，含该时刻",
+	FlagEnd:           "窗口终点，秒，不含该时刻",
+	FlagDuration:      "窗口长度，秒；不写 --start 时就是开头 N 秒",
+	FlagScale:         "长边像素，只能是 512 或 1024",
+	FlagCompare:       "额外写出左右并排 mp4，左边是原片",
 
 	CobraUsage: `用法:{{if .Runnable}}
   {{.UseLine}}{{end}}{{if .HasAvailableSubCommands}}
@@ -65,6 +72,12 @@ var zh = Catalog{
 	ErrExtractFailed:      "抽帧失败：%s",
 	ErrNoExtractedFrames:  "没有抽出帧：%s",
 	ErrAnchorFailed:       "抽锚点帧失败 t=%.3f：%s",
+	ErrWindowBoth:         "--end 和 --duration 不能同时使用",
+	ErrWindowNegative:     "时间不能为负",
+	ErrWindowStart:        "起点 %.3f 不在成片范围内（%.3f 秒）",
+	ErrWindowEmpty:        "窗口为空 %.3f-%.3f",
+	ErrScale:              "长边只能是 512 或 1024，当前是 %d",
+	ErrComparePreview:     "--compare 不能和 --preview 一起使用",
 	ErrStitchFailed:       "拼片失败：%s",
 	ErrSheetCount:         "对照图张数不对",
 	ErrSheetFailed:        "对照图失败：%s",
@@ -100,5 +113,8 @@ var zh = Catalog{
 	PlanRoute:   "  depth      cpu",
 	PlanPreview: "  preview    %d 帧",
 	PlanFull:    "  full       %d 帧  mp4",
+	PlanWindow:  "  window     %.1fs-%.1fs",
+	PlanScale:   "  scale      %d",
+	PlanCompare: "  compare    %s",
 	PlanRate:    "  rate       %s",
 }

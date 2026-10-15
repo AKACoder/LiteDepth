@@ -11,7 +11,7 @@ import (
 	"litedepth/internal/media"
 )
 
-func extractRGB(spec job.Spec, src media.Source, destDir string, duration float64) (media.Frames, error) {
+func extractRGB(spec job.Spec, src media.Source, destDir string, win job.Window) (media.Frames, error) {
 	if spec.Preview > 0 {
 		fmt.Println(i18n.C().LogExtractPreview)
 	} else {
@@ -19,8 +19,10 @@ func extractRGB(spec job.Spec, src media.Source, destDir string, duration float6
 	}
 	return media.Extract(src, media.ExtractOpt{
 		DestDir:   destDir,
-		DurationS: duration,
+		StartS:    win.Start,
+		DurationS: win.Len(),
 		PreviewN:  spec.Preview,
+		Scale:     spec.Scale,
 	})
 }
 

@@ -11,7 +11,11 @@ type Catalog struct {
 	FlagPreviewFrames string
 	FlagOutput        string
 	FlagFrames        string
+	FlagStart         string
+	FlagEnd           string
 	FlagDuration      string
+	FlagScale         string
+	FlagCompare       string
 
 	CobraUsage       string
 	CobraHelpCommand string
@@ -35,6 +39,12 @@ type Catalog struct {
 	ErrExtractFailed      string
 	ErrNoExtractedFrames  string
 	ErrAnchorFailed       string
+	ErrWindowBoth         string
+	ErrWindowNegative     string
+	ErrWindowStart        string
+	ErrWindowEmpty        string
+	ErrScale              string
+	ErrComparePreview     string
 	ErrStitchFailed       string
 	ErrSheetCount         string
 	ErrSheetFailed        string
@@ -70,6 +80,9 @@ type Catalog struct {
 	PlanRoute   string
 	PlanPreview string
 	PlanFull    string
+	PlanWindow  string
+	PlanScale   string
+	PlanCompare string
 	PlanRate    string
 }
 

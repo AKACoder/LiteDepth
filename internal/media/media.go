@@ -26,12 +26,15 @@ func (f Frames) Count() int { return len(f.Paths) }
 
 type ExtractOpt struct {
 	DestDir   string
+	StartS    float64
 	DurationS float64
 	PreviewN  int
+	Scale     int
 }
 
 type StitchOpt struct {
 	Output    string
+	StartS    float64
 	DurationS float64
 	AudioFrom string
 }
@@ -62,9 +65,9 @@ func Extract(src Source, opt ExtractOpt) (Frames, error) {
 		err   error
 	)
 	if opt.PreviewN > 0 {
-		paths, err = ffmpegx.ExtractAnchors(src.Path, opt.DestDir, opt.DurationS, opt.PreviewN, src.FPS)
+		paths, err = ffmpegx.ExtractAnchors(src.Path, opt.DestDir, opt.StartS, opt.StartS+opt.DurationS, opt.PreviewN, src.FPS, opt.Scale)
 	} else {
-		paths, err = ffmpegx.Extract(src.Path, opt.DestDir, opt.DurationS)
+		paths, err = ffmpegx.Extract(src.Path, opt.DestDir, opt.StartS, opt.DurationS, opt.Scale)
 	}
 	if err != nil {
 		return Frames{}, err
@@ -76,5 +79,5 @@ func Stitch(frames Frames, opt StitchOpt) error {
 	if frames.Count() == 0 {
 		return fmt.Errorf(i18n.C().ErrNoFramesToStitch, frames.Dir)
 	}
-	return ffmpegx.Stitch(frames.Dir, opt.Output, frames.Rate, opt.AudioFrom, opt.DurationS)
+	return ffmpegx.Stitch(frames.Dir, opt.Output, frames.Rate, opt.AudioFrom, opt.StartS, opt.DurationS)
 }

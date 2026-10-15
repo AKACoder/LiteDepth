@@ -55,7 +55,11 @@ func run() int {
 	root.Flags().IntVar(&previewN, "preview-frames", job.PreviewDefault, t.FlagPreviewFrames)
 	root.Flags().StringVar(&spec.Output, "output", "", t.FlagOutput)
 	root.Flags().BoolVar(&spec.Frames, "frames", false, t.FlagFrames)
+	root.Flags().Float64Var(&spec.StartS, "start", 0, t.FlagStart)
+	root.Flags().Float64Var(&spec.EndS, "end", 0, t.FlagEnd)
 	root.Flags().Float64Var(&spec.DurationS, "duration", 0, t.FlagDuration)
+	root.Flags().IntVar(&spec.Scale, "scale", job.ScaleDefault, t.FlagScale)
+	root.Flags().BoolVar(&spec.Compare, "compare", false, t.FlagCompare)
 
 	root.AddCommand(&cobra.Command{
 		Use:   "setup",

@@ -32,22 +32,37 @@ func Run(ctx context.Context, spec job.Spec) error {
 	if src.FPS <= 0 {
 		return fmt.Errorf("%s", i18n.C().ErrNoFrameRate)
 	}
-	duration := media.ClipDuration(spec.DurationS, src.DurationS)
-	printPlan(spec, duration, src)
-	return pipeline.Run(ctx, spec, src, duration)
+	if err := job.RejectComparePreview(spec.Preview, spec.Compare); err != nil {
+		return err
+	}
+	spec.Scale, err = job.ResolveScale(spec.Scale)
+	if err != nil {
+		return err
+	}
+	win, err := job.ResolveWindow(spec.StartS, spec.EndS, spec.DurationS, src.DurationS)
+	if err != nil {
+		return err
+	}
+	printPlan(spec, src, win)
+	return pipeline.Run(ctx, spec, src, win)
 }
 
-func printPlan(spec job.Spec, duration float64, src media.Source) {
+func printPlan(spec job.Spec, src media.Source, win job.Window) {
 	t := i18n.C()
 	fmt.Printf("litedepth %s\n", job.Version)
 	fmt.Println(t.PlanRoute)
-	fmt.Printf("  video      %s  (%.1fs)\n", spec.Video, duration)
+	fmt.Printf("  video      %s  (%.1fs)\n", spec.Video, win.Len())
 	fmt.Printf(t.PlanRate+"\n", src.Rate)
+	fmt.Printf(t.PlanWindow+"\n", win.Start, win.End)
+	fmt.Printf(t.PlanScale+"\n", spec.Scale)
 	if spec.Preview > 0 {
-		n := len(ffmpegx.AnchorTimes(duration, spec.Preview, src.FPS))
+		n := len(ffmpegx.AnchorTimes(win.Start, win.End, spec.Preview, src.FPS))
 		fmt.Printf(t.PlanPreview+"\n", n)
 	} else {
-		fmt.Printf(t.PlanFull+"\n", job.PlannedFrames(duration, src.FPS))
+		fmt.Printf(t.PlanFull+"\n", job.PlannedFrames(win.Len(), src.FPS))
 	}
 	fmt.Printf("  output     %s\n", spec.DefaultOutput())
+	if spec.Compare {
+		fmt.Printf(t.PlanCompare+"\n", spec.CompareOutput())
+	}
 }

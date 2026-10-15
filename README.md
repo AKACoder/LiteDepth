@@ -68,6 +68,24 @@ Uniformly samples keyframes across the clip, generates an RGB vs. depth comparis
 ```
 Processes only the first 5 seconds to quickly evaluate depth quality and motion coherence.
 
+**Process a window in the middle of the clip**:
+```bash
+./litedepth --start 8 --end 12 clip.mp4
+```
+The window is half-open: start is included, end is not. `--start 8 --duration 4` is the same four seconds. Audio is taken from that window, not from the beginning of the file.
+
+**Draft a window at half the long edge**:
+```bash
+./litedepth --scale 512 --preview --start 8 --end 12 clip.mp4
+```
+`--scale` accepts only `512` or `1024`. The default stays 1024. 512 skips wide-frame tiling so a short preview comes back sooner. The depth network input stays 518.
+
+**Watch the depth beside the source**:
+```bash
+./litedepth --compare --start 8 --end 12 --scale 512 clip.mp4
+```
+The depth video is still written. A second file, `clip.depth.compare.mp4`, plays the source on the left and the depth on the right for that same window, then opens. `--compare` cannot be combined with `--preview`.
+
 > **Performance Note**: Monocular depth estimation on CPU is compute-intensive; processing a few seconds of video typically takes several minutes. We recommend testing with `--preview` or `--duration` before processing full-length videos.
 
 ---
@@ -78,7 +96,11 @@ Processes only the first 5 seconds to quickly evaluate depth quality and motion 
 | --- | --- |
 | `--preview` | Generate and automatically open a side-by-side keyframe comparison sheet (default: 3 frames). |
 | `--preview-frames <N>` | Number of sampled keyframes for the preview (1–12; automatically enables preview mode). |
-| `--duration <sec>` | Limit processing to the first N seconds of the video. |
+| `--start <sec>` | Window start, inclusive. Omitted means the beginning of the clip. |
+| `--end <sec>` | Window end, exclusive. An end past the clip is clamped to the clip. Cannot be combined with `--duration`. |
+| `--duration <sec>` | Window length. With no `--start`, this is the first N seconds. |
+| `--scale <px>` | Long edge of extracted frames, `512` or `1024`. Default `1024`. Preview and the full export share it. |
+| `--compare` | Also write a side-by-side mp4 next to the depth video and open it. Source on the left, depth on the right. |
 | `--frames` | Save individual depth maps as a PNG sequence alongside the video (ignored when `--preview` is enabled). |
 | `--output <path>` | Custom destination path for the output video or preview image. |
 

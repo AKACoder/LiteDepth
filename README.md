@@ -2,7 +2,7 @@
 
 English | [简体中文](README.zh.md)
 
-[![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](#)
+[![Version](https://img.shields.io/badge/version-0.2.0-blue.svg)](#)
 [![License](https://img.shields.io/badge/license-Apache--2.0-green.svg)](LICENSE)
 [![Go Version](https://img.shields.io/badge/Go-1.25+-00ADD8.svg?logo=go&logoColor=white)](#)
 

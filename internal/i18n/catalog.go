@@ -18,6 +18,9 @@ type Catalog struct {
 	FlagCompare       string
 	FlagClay          string
 	FlagManifest      string
+	FlagShots         string
+	FlagShotCheck     string
+	FlagHLS           string
 
 	CobraUsage       string
 	CobraHelpCommand string
@@ -47,6 +50,11 @@ type Catalog struct {
 	ErrWindowEmpty        string
 	ErrScale              string
 	ErrComparePreview     string
+	ErrShotsPreview       string
+	ErrShotCheckOnly      string
+	ErrHLS                string
+	ErrNoShots            string
+	ErrShotAlign          string
 	ErrStitchFailed       string
 	ErrSheetCount         string
 	ErrSheetFailed        string
@@ -79,19 +87,25 @@ type Catalog struct {
 	LogFrames         string
 	LogDepth          string
 
-	PlanRoute    string
-	PlanPreview  string
-	PlanFull     string
-	PlanWindow   string
-	PlanScale    string
-	PlanCompare  string
-	PlanClay     string
-	PlanManifest string
-	PlanRate     string
+	PlanRoute     string
+	PlanPreview   string
+	PlanFull      string
+	PlanWindow    string
+	PlanScale     string
+	PlanCompare   string
+	PlanClay      string
+	PlanManifest  string
+	PlanShots     string
+	PlanShotCheck string
+	PlanHLS       string
+	PlanRate      string
+
+	LogShots string
 
 	PromptDepth string
 	PromptFill  string
 	PromptClay  string
+	PromptShots string
 }
 
 // ManifestPrompt is the draft stored in the manifest. The creative line stays blank.

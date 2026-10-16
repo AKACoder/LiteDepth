@@ -21,6 +21,10 @@ func Run(ctx context.Context, spec job.Spec, src media.Source, win job.Window) e
 	}
 	defer os.RemoveAll(work)
 
+	if spec.ShotCheck {
+		return writeShotCheck(work, spec, src, win)
+	}
+
 	rgb, err := extractRGB(spec, src, filepath.Join(work, "frames"), win)
 	if err != nil {
 		return err
@@ -49,7 +53,7 @@ func Run(ctx context.Context, spec job.Spec, src media.Source, win job.Window) e
 			fmt.Println(i18n.C().LogWrote, clayOut)
 			_ = ffmpegx.Open(clayOut)
 		}
-		return writeManifest(spec, src, win, frames)
+		return writeManifest(spec, src, win, frames, nil)
 	}
 
 	clip := filepath.Join(work, "depth.mp4")
@@ -100,5 +104,12 @@ func Run(ctx context.Context, spec job.Spec, src media.Source, win job.Window) e
 		}
 		fmt.Println(i18n.C().LogFrames, dest)
 	}
-	return writeManifest(spec, src, win, frames)
+	var shots []job.ShotFile
+	if spec.Shots {
+		shots, err = writeShots(work, spec, src, win, frames, clay)
+		if err != nil {
+			return err
+		}
+	}
+	return writeManifest(spec, src, win, frames, shots)
 }

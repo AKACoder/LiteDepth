@@ -75,6 +75,48 @@ func TestBuildManifest(t *testing.T) {
 	}
 }
 
+func TestManifestWithShots(t *testing.T) {
+	t.Cleanup(func() { i18n.Set("") })
+	i18n.Set("en")
+	spec := Spec{Video: "clip.mp4", Manifest: true, Shots: true}
+	doc := BuildManifest(spec, "24/1", Window{Start: 0, End: 2}, 512, 288)
+	if doc.Version != ManifestVersion {
+		t.Fatalf("version without shots: %d", doc.Version)
+	}
+	raw, err := json.Marshal(doc)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(raw), `"shots"`) {
+		t.Fatalf("shots key on version 1: %s", raw)
+	}
+	if strings.Contains(doc.Prompt, i18n.C().PromptShots) {
+		t.Fatal("shot sentence without shots")
+	}
+	v2 := doc.WithShots([]ShotFile{{
+		Index: 1,
+		Start: 0,
+		End:   2,
+		Depth: "clip.depth.shots/001.mp4",
+	}})
+	if v2.Version != ManifestVersionShots {
+		t.Fatalf("version with shots: %d", v2.Version)
+	}
+	if doc.Version != ManifestVersion {
+		t.Fatal("WithShots changed the version 1 document")
+	}
+	if !strings.Contains(v2.Prompt, i18n.C().PromptShots) || !strings.Contains(v2.Prompt, i18n.C().PromptFill) {
+		t.Fatalf("prompt: %s", v2.Prompt)
+	}
+	raw, err = json.Marshal(v2)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(raw), `"shots"`) || !strings.Contains(string(raw), `001.mp4`) {
+		t.Fatalf("version 2: %s", raw)
+	}
+}
+
 func manifestKeys(t *testing.T, doc Manifest) []string {
 	t.Helper()
 	raw, err := json.Marshal(doc)

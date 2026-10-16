@@ -179,6 +179,41 @@ func ExtractAnchors(video, destDir string, startS, endS float64, n int, fps floa
 	return out, nil
 }
 
+// ExtractRaw reads the window as packed RGB frames. The seek matches Extract,
+// so the frame count lines up with a depth export of the same window.
+func ExtractRaw(video string, startS, lengthS float64, width, height int) ([]byte, int, error) {
+	ffmpeg, _, err := LookPath()
+	if err != nil {
+		return nil, 0, err
+	}
+	args := []string{"-y"}
+	if startS > 0 {
+		args = append(args, "-ss", secs(startS))
+	}
+	args = append(args, "-i", video)
+	if lengthS > 0 {
+		args = append(args, "-t", secs(lengthS))
+	}
+	args = append(args,
+		"-fps_mode", "passthrough",
+		"-f", "rawvideo", "-pix_fmt", "rgb24",
+		"-s", fmt.Sprintf("%dx%d", width, height),
+		"-",
+	)
+	cmd := exec.Command(ffmpeg, args...)
+	var errOut strings.Builder
+	cmd.Stderr = &errOut
+	out, err := cmd.Output()
+	if err != nil {
+		return nil, 0, fmt.Errorf(i18n.C().ErrExtractFailed, tail([]byte(errOut.String())))
+	}
+	frame := width * height * 3
+	if frame == 0 || len(out)%frame != 0 {
+		return nil, 0, fmt.Errorf(i18n.C().ErrNoExtractedFrames, video)
+	}
+	return out, len(out) / frame, nil
+}
+
 func extractArgs(video, destPattern string, startS, lengthS float64, longEdge int) []string {
 	args := []string{"-y"}
 	if startS > 0 {

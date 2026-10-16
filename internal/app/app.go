@@ -35,6 +35,15 @@ func Run(ctx context.Context, spec job.Spec) error {
 	if err := job.RejectComparePreview(spec.Preview, spec.Compare); err != nil {
 		return err
 	}
+	if err := job.RejectShotCheck(spec); err != nil {
+		return err
+	}
+	if err := job.RejectShotsPreview(spec.Preview, spec.Shots); err != nil {
+		return err
+	}
+	if err := job.RejectHLS(spec); err != nil {
+		return err
+	}
 	spec.Scale, err = job.ResolveScale(spec.Scale)
 	if err != nil {
 		return err
@@ -55,6 +64,13 @@ func printPlan(spec job.Spec, src media.Source, win job.Window) {
 	fmt.Printf(t.PlanRate+"\n", src.Rate)
 	fmt.Printf(t.PlanWindow+"\n", win.Start, win.End)
 	fmt.Printf(t.PlanScale+"\n", spec.Scale)
+	if spec.ShotCheck {
+		fmt.Printf(t.PlanShotCheck+"\n", spec.ShotCheckDir())
+		if spec.HLS {
+			fmt.Printf(t.PlanHLS+"\n", spec.PlaylistPath())
+		}
+		return
+	}
 	if spec.Preview > 0 {
 		n := len(ffmpegx.AnchorTimes(win.Start, win.End, spec.Preview, src.FPS))
 		fmt.Printf(t.PlanPreview+"\n", n)
@@ -70,5 +86,11 @@ func printPlan(spec job.Spec, src media.Source, win job.Window) {
 	}
 	if spec.Manifest {
 		fmt.Printf(t.PlanManifest+"\n", spec.ManifestPath())
+	}
+	if spec.Shots {
+		fmt.Printf(t.PlanShots+"\n", spec.ShotsDir())
+	}
+	if spec.HLS {
+		fmt.Printf(t.PlanHLS+"\n", spec.PlaylistPath())
 	}
 }

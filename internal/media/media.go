@@ -81,3 +81,25 @@ func Stitch(frames Frames, opt StitchOpt) error {
 	}
 	return ffmpegx.Stitch(frames.Dir, opt.Output, frames.Rate, opt.AudioFrom, opt.StartS, opt.DurationS)
 }
+
+// StitchShotOpt describes one shot cut from an already extracted frame sequence.
+// FrameIndex is the first frame in that sequence. OriginS is the source time of frame 0.
+type StitchShotOpt struct {
+	Output     string
+	AudioFrom  string
+	OriginS    float64
+	FrameIndex int
+}
+
+// StitchShot writes one shot. The full export keeps using Stitch.
+func StitchShot(frames Frames, opt StitchShotOpt) error {
+	if frames.Count() == 0 {
+		return fmt.Errorf(i18n.C().ErrNoFramesToStitch, frames.Dir)
+	}
+	return ffmpegx.StitchShot(frames.Dir, opt.Output, frames.Rate, opt.AudioFrom, opt.OriginS, opt.FrameIndex, frames.Count())
+}
+
+// SegmentShots remuxes the shot mp4s in dir into an HLS playlist.
+func SegmentShots(dir string, names []string) error {
+	return ffmpegx.SegmentShots(dir, names)
+}

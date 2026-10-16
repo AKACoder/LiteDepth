@@ -92,6 +92,18 @@ The depth video is unchanged. A second file, `clip.depth.clay.mp4`, shades the d
 ```
 Writes `clip.depth.manifest.json` with the window, frame size, output paths, and a prompt draft. The creative line is left blank. With `--clay`, the file also names the clay video.
 
+**Check the shot cuts on the source**:
+```bash
+./litedepth --shot-check --scale 512 clip.mp4
+```
+Writes `clip.shots/` with one re-encoded source clip per shot, scaled to the long edge you set, plus `index.json`. No depth video is written. Short shots are kept so you can see every cut. Add `--hls` to also write `playlist.m3u8` and transport-stream segments. Open that playlist in VLC to watch the shots as one stream.
+
+**Cut the depth video at those same shots**:
+```bash
+./litedepth --shots --scale 512 clip.mp4
+```
+The full depth video is unchanged. `clip.depth.shots/` holds one depth mp4 per shot. Cuts are found on the source, then applied to the rendered depth frames. Add `--hls` to also write `playlist.m3u8` and transport-stream segments beside those mp4s. Open that playlist in VLC to watch the shots as one stream. With `--clay`, each shot also gets `001.clay.mp4`. With `--manifest`, the description becomes version 2 and lists those files. `--shots` cannot be combined with `--preview`, and `--shot-check` cannot be combined with a depth export. `--hls` requires `--shots` or `--shot-check`.
+
 **Watch the depth beside the source**:
 ```bash
 ./litedepth --compare --start 8 --end 12 --scale 512 clip.mp4
@@ -115,6 +127,9 @@ The depth video is still written. A second file, `clip.depth.compare.mp4`, plays
 | `--compare` | Also write a side-by-side mp4 next to the depth video and open it. Source on the left, depth on the right. |
 | `--clay` | Also write a clay-shaded video from the depth before the view curve, or a second preview sheet. |
 | `--manifest` | Also write a JSON description of this run and a prompt draft. |
+| `--shot-check` | Cut the source video at shot changes and re-encode it, so the cuts can be checked. No depth video is written. |
+| `--shots` | Cut the depth video at the same shot changes. The full depth video stays as it is. |
+| `--hls` | With `--shots` or `--shot-check`, also write an HLS playlist and transport-stream segments so VLC can play the shots as one stream. |
 | `--frames` | Save individual depth maps as a PNG sequence alongside the video (ignored when `--preview` is enabled). |
 | `--output <path>` | Custom destination path for the output video or preview image. |
 

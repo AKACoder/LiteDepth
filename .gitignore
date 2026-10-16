@@ -10,4 +10,5 @@ dist/
 *.mkv
 temp/
 internal/depth/data/*.onnx
+internal/transnet/data/*.onnx
 internal/depth/ort/

@@ -7,10 +7,13 @@ import (
 	"litedepth/internal/i18n"
 )
 
-const ManifestVersion = 1
+const (
+	ManifestVersion      = 1
+	ManifestVersionShots = 2
+)
 
 // Manifest is the description written next to one export.
-// Version stays 1 until a later change adds shots.
+// Version is 1 until shots are attached, which makes it 2.
 type Manifest struct {
 	Version int              `json:"version"`
 	Source  string           `json:"source"`
@@ -19,6 +22,7 @@ type Manifest struct {
 	Width   int              `json:"width"`
 	Height  int              `json:"height"`
 	Outputs []ManifestOutput `json:"outputs"`
+	Shots   []ShotFile       `json:"shots,omitempty"`
 	Prompt  string           `json:"prompt"`
 }
 
@@ -61,4 +65,14 @@ func BuildManifest(spec Spec, fps string, win Window, width, height int) Manifes
 		Outputs: outs,
 		Prompt:  i18n.C().ManifestPrompt(spec.Clay),
 	}
+}
+
+// WithShots records the per-shot files and asks the prompt to refer to each shot.
+// The copy is version 2. A manifest built without this call stays version 1 and
+// has no shots key.
+func (m Manifest) WithShots(shots []ShotFile) Manifest {
+	m.Version = ManifestVersionShots
+	m.Shots = shots
+	m.Prompt += "\n" + i18n.C().PromptShots
+	return m
 }

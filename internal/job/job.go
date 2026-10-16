@@ -31,6 +31,9 @@ type Spec struct {
 	Frames    bool
 	Clay      bool
 	Manifest  bool
+	Shots     bool
+	ShotCheck bool
+	HLS       bool
 }
 
 func (s Spec) DefaultOutput() string {

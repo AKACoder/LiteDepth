@@ -31,7 +31,9 @@ type Model struct {
 	mu      sync.Mutex
 }
 
-func New() (*Model, error) {
+// EnsureRuntime loads the embedded ONNX Runtime once. Shot detection uses the
+// same runtime and does not load the depth model.
+func EnsureRuntime() error {
 	envOnce.Do(func() {
 		lib, err := ensureORTLibrary()
 		if err != nil {
@@ -41,8 +43,12 @@ func New() (*Model, error) {
 		ort.SetSharedLibraryPath(lib)
 		envErr = ort.InitializeEnvironment()
 	})
-	if envErr != nil {
-		return nil, envErr
+	return envErr
+}
+
+func New() (*Model, error) {
+	if err := EnsureRuntime(); err != nil {
+		return nil, err
 	}
 
 	inputs, outputs, err := ort.GetInputOutputInfoWithONNXData(embeddedDepth)

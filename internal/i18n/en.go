@@ -11,6 +11,7 @@ var en = Catalog{
   litedepth --scale 512 --preview clip.mp4
   litedepth --compare --start 8 --end 12 clip.mp4
   litedepth --clay --duration 3 clip.mp4
+  litedepth --manifest clip.mp4
   litedepth setup
 
 Writes .depth.mp4 next to the source, at the source frame rate. --frames also writes .depth.frames/.`,
@@ -28,6 +29,7 @@ Writes .depth.mp4 next to the source, at the source frame rate. --frames also wr
 	FlagScale:         "long edge in pixels, 512 or 1024",
 	FlagCompare:       "also write a side-by-side mp4, source on the left",
 	FlagClay:          "also write a clay-shaded mp4 of the same depth",
+	FlagManifest:      "also write a JSON description and a prompt draft",
 
 	CobraUsage: `Usage:{{if .Runnable}}
   {{.UseLine}}{{end}}{{if .HasAvailableSubCommands}}
@@ -112,12 +114,17 @@ Use "{{.CommandPath}} [command] --help" for more information about a command.{{e
 	LogFrames:         "frames    ",
 	LogDepth:          "depth      %d frames",
 
-	PlanRoute:   "  depth      cpu",
-	PlanPreview: "  preview    %d frames",
-	PlanFull:    "  full       %d frames  mp4",
-	PlanWindow:  "  window     %.1fs-%.1fs",
-	PlanScale:   "  scale      %d",
-	PlanCompare: "  compare    %s",
-	PlanClay:    "  clay       %s",
-	PlanRate:    "  rate       %s",
+	PlanRoute:    "  depth      cpu",
+	PlanPreview:  "  preview    %d frames",
+	PlanFull:     "  full       %d frames  mp4",
+	PlanWindow:   "  window     %.1fs-%.1fs",
+	PlanScale:    "  scale      %d",
+	PlanCompare:  "  compare    %s",
+	PlanClay:     "  clay       %s",
+	PlanManifest: "  manifest   %s",
+	PlanRate:     "  rate       %s",
+
+	PromptDepth: "The depth video is nearer-brighter and farther-darker.",
+	PromptFill:  "[Fill in the subject, action, scene, and style.]",
+	PromptClay:  "The clay video only supplies the camera move, shot size, subject path, and blocking. Do not copy its gray-white look.",
 }

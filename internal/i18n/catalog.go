@@ -17,6 +17,7 @@ type Catalog struct {
 	FlagScale         string
 	FlagCompare       string
 	FlagClay          string
+	FlagManifest      string
 
 	CobraUsage       string
 	CobraHelpCommand string
@@ -78,14 +79,28 @@ type Catalog struct {
 	LogFrames         string
 	LogDepth          string
 
-	PlanRoute   string
-	PlanPreview string
-	PlanFull    string
-	PlanWindow  string
-	PlanScale   string
-	PlanCompare string
-	PlanClay    string
-	PlanRate    string
+	PlanRoute    string
+	PlanPreview  string
+	PlanFull     string
+	PlanWindow   string
+	PlanScale    string
+	PlanCompare  string
+	PlanClay     string
+	PlanManifest string
+	PlanRate     string
+
+	PromptDepth string
+	PromptFill  string
+	PromptClay  string
+}
+
+// ManifestPrompt is the draft stored in the manifest. The creative line stays blank.
+func (c Catalog) ManifestPrompt(clay bool) string {
+	text := c.PromptDepth + "\n" + c.PromptFill
+	if clay {
+		text += "\n" + c.PromptClay
+	}
+	return text
 }
 
 func (c Catalog) FFmpegHint(goos string) string {

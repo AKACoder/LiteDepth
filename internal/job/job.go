@@ -30,6 +30,7 @@ type Spec struct {
 	Compare   bool
 	Frames    bool
 	Clay      bool
+	Manifest  bool
 }
 
 func (s Spec) DefaultOutput() string {

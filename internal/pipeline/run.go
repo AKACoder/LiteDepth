@@ -49,7 +49,7 @@ func Run(ctx context.Context, spec job.Spec, src media.Source, win job.Window) e
 			fmt.Println(i18n.C().LogWrote, clayOut)
 			_ = ffmpegx.Open(clayOut)
 		}
-		return nil
+		return writeManifest(spec, src, win, frames)
 	}
 
 	clip := filepath.Join(work, "depth.mp4")
@@ -93,13 +93,12 @@ func Run(ctx context.Context, spec job.Spec, src media.Source, win job.Window) e
 		fmt.Println(i18n.C().LogWrote, cmp)
 		_ = ffmpegx.Open(cmp)
 	}
-	if !spec.Frames {
-		return nil
+	if spec.Frames {
+		dest := strings.TrimSuffix(out, filepath.Ext(out)) + ".frames"
+		if err := copyDir(frames.Dir, dest); err != nil {
+			return err
+		}
+		fmt.Println(i18n.C().LogFrames, dest)
 	}
-	dest := strings.TrimSuffix(out, filepath.Ext(out)) + ".frames"
-	if err := copyDir(frames.Dir, dest); err != nil {
-		return err
-	}
-	fmt.Println(i18n.C().LogFrames, dest)
-	return nil
+	return writeManifest(spec, src, win, frames)
 }

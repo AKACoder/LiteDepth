@@ -11,6 +11,7 @@ var zh = Catalog{
   litedepth --scale 512 --preview clip.mp4
   litedepth --compare --start 8 --end 12 clip.mp4
   litedepth --clay --duration 3 clip.mp4
+  litedepth --manifest clip.mp4
   litedepth setup
 
 在原片旁边写出 .depth.mp4，帧率跟原片走。--frames 才会再写出 .depth.frames/。`,
@@ -28,6 +29,7 @@ var zh = Catalog{
 	FlagScale:         "长边像素，只能是 512 或 1024",
 	FlagCompare:       "额外写出左右并排 mp4，左边是原片",
 	FlagClay:          "额外写出同一深度的白模 mp4",
+	FlagManifest:      "额外写出 JSON 说明和提示词草稿",
 
 	CobraUsage: `用法:{{if .Runnable}}
   {{.UseLine}}{{end}}{{if .HasAvailableSubCommands}}
@@ -112,12 +114,17 @@ var zh = Catalog{
 	LogFrames:         "frames    ",
 	LogDepth:          "depth      %d 帧",
 
-	PlanRoute:   "  depth      cpu",
-	PlanPreview: "  preview    %d 帧",
-	PlanFull:    "  full       %d 帧  mp4",
-	PlanWindow:  "  window     %.1fs-%.1fs",
-	PlanScale:   "  scale      %d",
-	PlanCompare: "  compare    %s",
-	PlanClay:    "  clay       %s",
-	PlanRate:    "  rate       %s",
+	PlanRoute:    "  depth      cpu",
+	PlanPreview:  "  preview    %d 帧",
+	PlanFull:     "  full       %d 帧  mp4",
+	PlanWindow:   "  window     %.1fs-%.1fs",
+	PlanScale:    "  scale      %d",
+	PlanCompare:  "  compare    %s",
+	PlanClay:     "  clay       %s",
+	PlanManifest: "  manifest   %s",
+	PlanRate:     "  rate       %s",
+
+	PromptDepth: "深度视频是近亮远暗。",
+	PromptFill:  "【在此填写主体、动作、场景、风格】",
+	PromptClay:  "白模只提供运镜、景别、主体轨迹和走位，不要照抄它的灰白外观。",
 }

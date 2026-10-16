@@ -8,8 +8,8 @@ import (
 
 // Window is the half-open source interval [Start, End), in seconds.
 type Window struct {
-	Start float64
-	End   float64
+	Start float64 `json:"start"`
+	End   float64 `json:"end"`
 }
 
 func (w Window) Len() float64 {

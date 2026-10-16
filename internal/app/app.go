@@ -68,4 +68,7 @@ func printPlan(spec job.Spec, src media.Source, win job.Window) {
 	if spec.Clay {
 		fmt.Printf(t.PlanClay+"\n", spec.ClayOutput())
 	}
+	if spec.Manifest {
+		fmt.Printf(t.PlanManifest+"\n", spec.ManifestPath())
+	}
 }

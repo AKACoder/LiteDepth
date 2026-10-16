@@ -86,6 +86,12 @@ The window is half-open: start is included, end is not. `--start 8 --duration 4`
 ```
 The depth video is unchanged. A second file, `clip.depth.clay.mp4`, shades the depth from before the view curve: nearer stays lighter, with the same window and audio. With `--preview`, the original contact sheet stays as it is and `clip.depth.clay.preview.jpg` is written beside it.
 
+**Write a task description beside the export**:
+```bash
+./litedepth --manifest clip.mp4
+```
+Writes `clip.depth.manifest.json` with the window, frame size, output paths, and a prompt draft. The creative line is left blank. With `--clay`, the file also names the clay video.
+
 **Watch the depth beside the source**:
 ```bash
 ./litedepth --compare --start 8 --end 12 --scale 512 clip.mp4
@@ -108,6 +114,7 @@ The depth video is still written. A second file, `clip.depth.compare.mp4`, plays
 | `--scale <px>` | Long edge of extracted frames, `512` or `1024`. Default `1024`. Preview and the full export share it. |
 | `--compare` | Also write a side-by-side mp4 next to the depth video and open it. Source on the left, depth on the right. |
 | `--clay` | Also write a clay-shaded video from the depth before the view curve, or a second preview sheet. |
+| `--manifest` | Also write a JSON description of this run and a prompt draft. |
 | `--frames` | Save individual depth maps as a PNG sequence alongside the video (ignored when `--preview` is enabled). |
 | `--output <path>` | Custom destination path for the output video or preview image. |
 

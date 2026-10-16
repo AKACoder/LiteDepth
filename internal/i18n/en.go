@@ -10,6 +10,7 @@ var en = Catalog{
   litedepth --start 8 --end 12 clip.mp4
   litedepth --scale 512 --preview clip.mp4
   litedepth --compare --start 8 --end 12 clip.mp4
+  litedepth --clay --duration 3 clip.mp4
   litedepth setup
 
 Writes .depth.mp4 next to the source, at the source frame rate. --frames also writes .depth.frames/.`,
@@ -26,6 +27,7 @@ Writes .depth.mp4 next to the source, at the source frame rate. --frames also wr
 	FlagDuration:      "window length in seconds; with no --start, the first N seconds",
 	FlagScale:         "long edge in pixels, 512 or 1024",
 	FlagCompare:       "also write a side-by-side mp4, source on the left",
+	FlagClay:          "also write a clay-shaded mp4 of the same depth",
 
 	CobraUsage: `Usage:{{if .Runnable}}
   {{.UseLine}}{{end}}{{if .HasAvailableSubCommands}}
@@ -116,5 +118,6 @@ Use "{{.CommandPath}} [command] --help" for more information about a command.{{e
 	PlanWindow:  "  window     %.1fs-%.1fs",
 	PlanScale:   "  scale      %d",
 	PlanCompare: "  compare    %s",
+	PlanClay:    "  clay       %s",
 	PlanRate:    "  rate       %s",
 }

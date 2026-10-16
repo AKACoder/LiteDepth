@@ -10,6 +10,7 @@ var zh = Catalog{
   litedepth --start 8 --end 12 clip.mp4
   litedepth --scale 512 --preview clip.mp4
   litedepth --compare --start 8 --end 12 clip.mp4
+  litedepth --clay --duration 3 clip.mp4
   litedepth setup
 
 在原片旁边写出 .depth.mp4，帧率跟原片走。--frames 才会再写出 .depth.frames/。`,
@@ -26,6 +27,7 @@ var zh = Catalog{
 	FlagDuration:      "窗口长度，秒；不写 --start 时就是开头 N 秒",
 	FlagScale:         "长边像素，只能是 512 或 1024",
 	FlagCompare:       "额外写出左右并排 mp4，左边是原片",
+	FlagClay:          "额外写出同一深度的白模 mp4",
 
 	CobraUsage: `用法:{{if .Runnable}}
   {{.UseLine}}{{end}}{{if .HasAvailableSubCommands}}
@@ -116,5 +118,6 @@ var zh = Catalog{
 	PlanWindow:  "  window     %.1fs-%.1fs",
 	PlanScale:   "  scale      %d",
 	PlanCompare: "  compare    %s",
+	PlanClay:    "  clay       %s",
 	PlanRate:    "  rate       %s",
 }

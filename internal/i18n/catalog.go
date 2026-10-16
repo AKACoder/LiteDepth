@@ -16,6 +16,7 @@ type Catalog struct {
 	FlagDuration      string
 	FlagScale         string
 	FlagCompare       string
+	FlagClay          string
 
 	CobraUsage       string
 	CobraHelpCommand string
@@ -83,6 +84,7 @@ type Catalog struct {
 	PlanWindow  string
 	PlanScale   string
 	PlanCompare string
+	PlanClay    string
 	PlanRate    string
 }
 

@@ -80,6 +80,12 @@ The window is half-open: start is included, end is not. `--start 8 --duration 4`
 ```
 `--scale` accepts only `512` or `1024`. The default stays 1024. 512 skips wide-frame tiling so a short preview comes back sooner. The depth network input stays 518.
 
+**Also write a clay shade of the depth**:
+```bash
+./litedepth --clay --duration 3 clip.mp4
+```
+The depth video is unchanged. A second file, `clip.depth.clay.mp4`, shades the depth from before the view curve: nearer stays lighter, with the same window and audio. With `--preview`, the original contact sheet stays as it is and `clip.depth.clay.preview.jpg` is written beside it.
+
 **Watch the depth beside the source**:
 ```bash
 ./litedepth --compare --start 8 --end 12 --scale 512 clip.mp4
@@ -101,6 +107,7 @@ The depth video is still written. A second file, `clip.depth.compare.mp4`, plays
 | `--duration <sec>` | Window length. With no `--start`, this is the first N seconds. |
 | `--scale <px>` | Long edge of extracted frames, `512` or `1024`. Default `1024`. Preview and the full export share it. |
 | `--compare` | Also write a side-by-side mp4 next to the depth video and open it. Source on the left, depth on the right. |
+| `--clay` | Also write a clay-shaded video from the depth before the view curve, or a second preview sheet. |
 | `--frames` | Save individual depth maps as a PNG sequence alongside the video (ignored when `--preview` is enabled). |
 | `--output <path>` | Custom destination path for the output video or preview image. |
 

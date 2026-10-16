@@ -24,6 +24,13 @@ func newReadableLook() *readableLook {
 }
 
 func (l *readableLook) Apply(depth []float32, dw, dh int, src *rgbImage) []uint8 {
+	view, _ := l.applyPair(depth, dw, dh, src)
+	return view
+}
+
+// applyPair returns the readable gray and the control depth it was built from.
+// control is the normalized depth after temporal hold, before the view curve.
+func (l *readableLook) applyPair(depth []float32, dw, dh int, src *rgbImage) (view, control []uint8) {
 	luma := sourceLuma(src)
 	blur := boxFilterSeparable(luma, src.W, src.H, lumaRadius)
 	if lumaMAD(l.blur, blur) > cutLumaMAD {
@@ -36,9 +43,10 @@ func (l *readableLook) Apply(depth []float32, dw, dh int, src *rgbImage) []uint8
 	if dw != src.W || dh != src.H {
 		norm = resizeGrayBilinear(norm, dw, dh, src.W, src.H)
 	}
-	norm = l.holdGray(norm, luma, blur, src.W, src.H)
+	control = l.holdGray(norm, luma, blur, src.W, src.H)
 	l.luma, l.blur = luma, blur
-	return l.holdStretch(layeredLook(norm, src.W, src.H))
+	view = l.holdStretch(layeredLook(control, src.W, src.H))
+	return view, control
 }
 
 func (l *readableLook) holdTone(lo, hi float32) (float32, float32) {

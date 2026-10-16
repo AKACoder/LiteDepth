@@ -25,7 +25,11 @@ func Run(ctx context.Context, spec job.Spec, src media.Source, win job.Window) e
 	if err != nil {
 		return err
 	}
-	frames, err := render(ctx, rgb, filepath.Join(work, "depth"), spec.Preview > 0)
+	clayDir := ""
+	if spec.Clay {
+		clayDir = filepath.Join(work, "clay")
+	}
+	frames, clay, err := render(ctx, rgb, filepath.Join(work, "depth"), clayDir, spec.Preview > 0)
 	if err != nil {
 		return err
 	}
@@ -37,6 +41,14 @@ func Run(ctx context.Context, spec job.Spec, src media.Source, win job.Window) e
 		}
 		fmt.Println(i18n.C().LogWrote, out)
 		_ = ffmpegx.Open(out)
+		if spec.Clay {
+			clayOut := spec.ClayOutput()
+			if err := ffmpegx.ContactSheet(rgb.Paths, clay.Paths, clayOut); err != nil {
+				return err
+			}
+			fmt.Println(i18n.C().LogWrote, clayOut)
+			_ = ffmpegx.Open(clayOut)
+		}
 		return nil
 	}
 
@@ -53,6 +65,22 @@ func Run(ctx context.Context, spec job.Spec, src media.Source, win job.Window) e
 		return err
 	}
 	fmt.Println(i18n.C().LogWrote, out)
+	if spec.Clay {
+		clayOut := spec.ClayOutput()
+		clayClip := filepath.Join(work, "clay.mp4")
+		if err := media.Stitch(clay, media.StitchOpt{
+			Output:    clayClip,
+			StartS:    win.Start,
+			DurationS: win.Len(),
+			AudioFrom: src.Path,
+		}); err != nil {
+			return err
+		}
+		if err := copyFile(clayClip, clayOut); err != nil {
+			return err
+		}
+		fmt.Println(i18n.C().LogWrote, clayOut)
+	}
 	if spec.Compare {
 		cmp := spec.CompareOutput()
 		side := filepath.Join(work, "compare.mp4")

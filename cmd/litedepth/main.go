@@ -60,6 +60,7 @@ func run() int {
 	root.Flags().Float64Var(&spec.DurationS, "duration", 0, t.FlagDuration)
 	root.Flags().IntVar(&spec.Scale, "scale", job.ScaleDefault, t.FlagScale)
 	root.Flags().BoolVar(&spec.Compare, "compare", false, t.FlagCompare)
+	root.Flags().BoolVar(&spec.Clay, "clay", false, t.FlagClay)
 
 	root.AddCommand(&cobra.Command{
 		Use:   "setup",

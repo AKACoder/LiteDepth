@@ -29,6 +29,7 @@ type Spec struct {
 	Scale     int
 	Compare   bool
 	Frames    bool
+	Clay      bool
 }
 
 func (s Spec) DefaultOutput() string {
@@ -54,6 +55,20 @@ func (s Spec) CompareOutput() string {
 	depth := s.DefaultOutput()
 	ext := filepath.Ext(depth)
 	return strings.TrimSuffix(depth, ext) + ".compare.mp4"
+}
+
+// ClayOutput is the clay file next to the depth output.
+// clip.depth.mp4 becomes clip.depth.clay.mp4. A preview sheet becomes
+// clip.depth.clay.preview.jpg. A custom --output keeps its extension.
+func (s Spec) ClayOutput() string {
+	depth := s.DefaultOutput()
+	ext := filepath.Ext(depth)
+	base := strings.TrimSuffix(depth, ext)
+	if strings.HasSuffix(base, ".preview") {
+		base = strings.TrimSuffix(base, ".preview")
+		return base + ".clay.preview" + ext
+	}
+	return base + ".clay" + ext
 }
 
 // RejectComparePreview reports when a still preview and a compare video are both requested.

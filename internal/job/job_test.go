@@ -33,6 +33,24 @@ func TestResolveScale(t *testing.T) {
 	}
 }
 
+func TestClayOutput(t *testing.T) {
+	def := Spec{Video: "dir/clip.mp4"}
+	if def.Clay {
+		t.Fatal("clay defaults off")
+	}
+	if def.ClayOutput() != "dir/clip.depth.clay.mp4" {
+		t.Fatalf("default: %s", def.ClayOutput())
+	}
+	custom := Spec{Video: "clip.mp4", Output: "/tmp/out.mp4"}
+	if custom.ClayOutput() != "/tmp/out.clay.mp4" {
+		t.Fatalf("custom: %s", custom.ClayOutput())
+	}
+	preview := Spec{Video: "dir/clip.mp4", Preview: 3}
+	if preview.ClayOutput() != "dir/clip.depth.clay.preview.jpg" {
+		t.Fatalf("preview: %s", preview.ClayOutput())
+	}
+}
+
 func TestDefaultOutput(t *testing.T) {
 	full := Spec{Video: "clip.mp4"}
 	if full.DefaultOutput() != "clip.depth.mp4" {

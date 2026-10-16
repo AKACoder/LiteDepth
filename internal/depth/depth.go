@@ -86,6 +86,13 @@ func (d *Model) Reset() {
 }
 
 func (d *Model) WritePNG(srcPath, destPath string) error {
+	return d.WriteDepthAndClay(srcPath, destPath, "")
+}
+
+// WriteDepthAndClay writes the readable depth frame. When clayPath is not
+// empty it also writes a clay shade of the pre-curve depth. The depth file
+// stays the view the user already gets.
+func (d *Model) WriteDepthAndClay(srcPath, depthPath, clayPath string) error {
 	d.mu.Lock()
 	defer d.mu.Unlock()
 
@@ -93,11 +100,21 @@ func (d *Model) WritePNG(srcPath, destPath string) error {
 	if err != nil {
 		return err
 	}
-	pix, err := d.renderFrame(src)
+	view, control, err := d.renderFrame(src)
 	if err != nil {
 		return err
 	}
-	rgb := grayToRGB(&image.Gray{Pix: pix, Stride: src.W, Rect: image.Rect(0, 0, src.W, src.H)})
+	if err := writeGrayPNG(view, src.W, src.H, depthPath); err != nil {
+		return err
+	}
+	if clayPath == "" {
+		return nil
+	}
+	return writeGrayPNG(ShadeClay(control, src.W, src.H), src.W, src.H, clayPath)
+}
+
+func writeGrayPNG(pix []uint8, w, h int, destPath string) error {
+	rgb := grayToRGB(&image.Gray{Pix: pix, Stride: w, Rect: image.Rect(0, 0, w, h)})
 	f, err := os.Create(destPath)
 	if err != nil {
 		return err
@@ -109,12 +126,13 @@ func (d *Model) WritePNG(srcPath, destPath string) error {
 	return f.Close()
 }
 
-func (d *Model) renderFrame(src *rgbImage) ([]uint8, error) {
+func (d *Model) renderFrame(src *rgbImage) (view, control []uint8, err error) {
 	depth, dw, dh, err := d.inferDepth(src)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	return d.look.Apply(depth, dw, dh, src), nil
+	view, control = d.look.applyPair(depth, dw, dh, src)
+	return view, control, nil
 }
 
 func (d *Model) inferDepth(src *rgbImage) ([]float32, int, int, error) {

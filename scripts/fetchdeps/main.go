@@ -1,4 +1,4 @@
-// Fetches the depth model and this machine's ONNX Runtime library so go build can embed them.
+// Fetches the depth model, the shot model, and this machine's ONNX Runtime library so go build can embed them.
 // Run from the repository: go run ./scripts/fetchdeps
 package main
 
@@ -19,6 +19,10 @@ const ortVer = "1.29.0"
 
 const depthURL = "https://github.com/fabio-sim/Depth-Anything-ONNX/releases/download/v2.0.0/depth_anything_v2_vits.onnx"
 
+// shotURL is the community ONNX export of the MIT-licensed TransNet V2 weights.
+// Its SHA-256 matches the file a local build embeds.
+const shotURL = "https://huggingface.co/elya5/transnetv2/resolve/main/transnetv2.onnx"
+
 func main() {
 	if err := run(); err != nil {
 		fmt.Fprintf(os.Stderr, "fetchdeps: %s\n", err)
@@ -35,6 +39,10 @@ func run() error {
 	if err := downloadFile(depthURL, depth); err != nil {
 		return err
 	}
+	shot := filepath.Join(root, "internal", "transnet", "data", "transnetv2.onnx")
+	if err := downloadFile(shotURL, shot); err != nil {
+		return err
+	}
 	spec, err := hostORT()
 	if err != nil {
 		return err
@@ -44,6 +52,7 @@ func run() error {
 		return err
 	}
 	fmt.Println(depth)
+	fmt.Println(shot)
 	fmt.Println(dest)
 	return nil
 }
@@ -120,8 +129,11 @@ func downloadFile(url, dest string) error {
 	if err := os.MkdirAll(filepath.Dir(dest), 0o755); err != nil {
 		return err
 	}
-	if filepath.Base(dest) == "depth.onnx" {
+	switch filepath.Base(dest) {
+	case "depth.onnx":
 		fmt.Println("fetch depth.onnx (Depth Anything V2 Small)")
+	case "transnetv2.onnx":
+		fmt.Println("fetch transnetv2.onnx (TransNet V2)")
 	}
 	resp, err := http.Get(url)
 	if err != nil {

@@ -33,6 +33,7 @@ Writes .depth.mp4 next to the source, at the source frame rate. --frames also wr
 	FlagShots:         "also cut the depth video at shot changes",
 	FlagShotCheck:     "cut the source video at shot changes so the cuts can be checked",
 	FlagHLS:           "also write an HLS playlist so VLC can play the shots as one stream",
+	FlagSeedance:      "fit the depth video to Seedance 2.5 reference limits",
 
 	CobraUsage: `Usage:{{if .Runnable}}
   {{.UseLine}}{{end}}{{if .HasAvailableSubCommands}}
@@ -88,6 +89,10 @@ Use "{{.CommandPath}} [command] --help" for more information about a command.{{e
 	ErrShotsPreview:       "--shots cannot be used with --preview",
 	ErrShotCheckOnly:      "--shot-check only cuts the source video",
 	ErrHLS:                "--hls requires --shots or --shot-check",
+	ErrSeedancePreview:    "--seedance cannot be used with --preview",
+	ErrSeedanceLimits:     "cannot fit this picture into the Seedance 2.5 reference limits",
+	ErrSeedanceShots:      "too many shots to fit into 30 seconds",
+	ErrSeedanceSize:       "file stays over 200 MB",
 	ErrNoShots:            "no shots to write",
 	ErrShotAlign:          "shot frames do not match the depth frames (%d and %d)",
 	ErrStitchFailed:       "stitch failed: %s",
@@ -133,9 +138,13 @@ Use "{{.CommandPath}} [command] --help" for more information about a command.{{e
 	PlanShots:     "  shots      %s",
 	PlanShotCheck: "  shot-check %s",
 	PlanHLS:       "  hls        %s",
+	PlanSeedance:  "  seedance   %s",
 	PlanRate:      "  rate       %s",
 
-	LogShots: "shots      %d",
+	LogShots:        "shots      %d",
+	LogSeedance:     "seedance   %s",
+	LogSeedanceOK:   "seedance   ok",
+	LogSeedanceFace: "seedance   real faces are not checked",
 
 	PromptDepth: "The depth video is nearer-brighter and farther-darker.",
 	PromptFill:  "[Fill in the subject, action, scene, and style.]",

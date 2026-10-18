@@ -104,6 +104,13 @@ Writes `clip.shots/` with one re-encoded source clip per shot, scaled to the lon
 ```
 The full depth video is unchanged. `clip.depth.shots/` holds one depth mp4 per shot. Cuts are found on the source, then applied to the rendered depth frames. Add `--hls` to also write `playlist.m3u8` and transport-stream segments beside those mp4s. Open that playlist in VLC to watch the shots as one stream. With `--clay`, each shot also gets `001.clay.mp4`. With `--manifest`, the description becomes version 2 and lists those files. `--shots` cannot be combined with `--preview`, and `--shot-check` cannot be combined with a depth export. `--hls` requires `--shots` or `--shot-check`.
 
+**Fit a Seedance 2.5 reference**:
+```bash
+./litedepth --seedance --scale 512 clip.mp4
+./litedepth --shots --seedance --scale 512 clip.mp4
+```
+`--seedance` fits the depth video (and the clay video, when asked) to the Seedance 2.5 reference limits: each clip 2–30 seconds, at most 10 clips, 30 seconds in total, aspect between 0.4 and 2.5, and a legal frame size and frame rate. Without `--shots`, that fitted file is the depth output. With `--shots`, the full depth video and `clip.depth.shots/` stay as they are, and a separate `clip.depth.seedance/` holds the upload set. Shots shorter than 2 seconds are joined into the next one, or into the previous one when the short shot is last. That join is only in the upload set. `--seedance` cannot be combined with `--preview` or `--shot-check`.
+
 **Watch the depth beside the source**:
 ```bash
 ./litedepth --compare --start 8 --end 12 --scale 512 clip.mp4
@@ -130,6 +137,7 @@ The depth video is still written. A second file, `clip.depth.compare.mp4`, plays
 | `--shot-check` | Cut the source video at shot changes and re-encode it, so the cuts can be checked. No depth video is written. |
 | `--shots` | Cut the depth video at the same shot changes. The full depth video stays as it is. |
 | `--hls` | With `--shots` or `--shot-check`, also write an HLS playlist and transport-stream segments so VLC can play the shots as one stream. |
+| `--seedance` | Fit the depth video to Seedance 2.5 reference limits. With `--shots`, write that set beside the unchanged hard cuts. |
 | `--frames` | Save individual depth maps as a PNG sequence alongside the video (ignored when `--preview` is enabled). |
 | `--output <path>` | Custom destination path for the output video or preview image. |
 

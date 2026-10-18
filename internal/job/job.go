@@ -34,6 +34,7 @@ type Spec struct {
 	Shots     bool
 	ShotCheck bool
 	HLS       bool
+	Seedance  bool
 }
 
 func (s Spec) DefaultOutput() string {

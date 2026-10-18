@@ -90,10 +90,26 @@ func RejectShotCheck(spec Spec) error {
 	if !spec.ShotCheck {
 		return nil
 	}
-	if spec.Shots || spec.Preview > 0 || spec.Compare || spec.Clay || spec.Frames || spec.Manifest {
+	if spec.Shots || spec.Preview > 0 || spec.Compare || spec.Clay || spec.Frames || spec.Manifest || spec.Seedance {
 		return fmt.Errorf("%s", i18n.C().ErrShotCheckOnly)
 	}
 	return nil
+}
+
+// RejectSeedance reports when a reference fit is asked of a preview sheet.
+func RejectSeedance(spec Spec) error {
+	if spec.Seedance && spec.Preview > 0 {
+		return fmt.Errorf("%s", i18n.C().ErrSeedancePreview)
+	}
+	return nil
+}
+
+// SeedanceDir is the upload set written beside the depth output.
+// clip.depth.mp4 becomes clip.depth.seedance. The hard-cut directory is separate.
+func (s Spec) SeedanceDir() string {
+	depth := s.DefaultOutput()
+	ext := filepath.Ext(depth)
+	return strings.TrimSuffix(depth, ext) + ".seedance"
 }
 
 // RejectHLS reports when a playlist is requested without shot files to list.

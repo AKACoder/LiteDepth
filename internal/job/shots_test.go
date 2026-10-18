@@ -64,6 +64,29 @@ func TestRejectHLS(t *testing.T) {
 	}
 }
 
+func TestRejectSeedance(t *testing.T) {
+	if err := RejectSeedance(Spec{Seedance: true, Preview: 3}); err == nil {
+		t.Fatal("seedance and preview should be rejected")
+	}
+	if err := RejectSeedance(Spec{Seedance: true}); err != nil {
+		t.Fatal(err)
+	}
+	if err := RejectShotCheck(Spec{ShotCheck: true, Seedance: true}); err == nil {
+		t.Fatal("shot-check and seedance should be rejected")
+	}
+}
+
+func TestSeedanceDir(t *testing.T) {
+	def := Spec{Video: "dir/clip.mp4"}
+	if def.SeedanceDir() != "dir/clip.depth.seedance" {
+		t.Fatalf("default: %s", def.SeedanceDir())
+	}
+	custom := Spec{Video: "clip.mp4", Output: "/tmp/out.mp4"}
+	if custom.SeedanceDir() != "/tmp/out.seedance" {
+		t.Fatalf("custom: %s", custom.SeedanceDir())
+	}
+}
+
 func TestShotsDir(t *testing.T) {
 	def := Spec{Video: "dir/clip.mp4"}
 	if def.ShotsDir() != "dir/clip.depth.shots" {

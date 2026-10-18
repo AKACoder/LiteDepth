@@ -117,6 +117,33 @@ func TestManifestWithShots(t *testing.T) {
 	}
 }
 
+func TestManifestAdjustments(t *testing.T) {
+	spec := Spec{Video: "clip.mp4"}
+	doc := BuildManifest(spec, "24/1", Window{Start: 0, End: 4}, 1024, 576)
+	raw, err := json.Marshal(doc.WithAdjustments(nil))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(raw), `"adjustments"`) {
+		t.Fatalf("empty adjustments: %s", raw)
+	}
+	fitted := doc.WithAdjustments([]string{"fps 23.976 -> 24"})
+	if fitted.Version != ManifestVersion {
+		t.Fatalf("version changed: %d", fitted.Version)
+	}
+	raw, err = json.Marshal(fitted)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(raw), `"adjustments"`) || !strings.Contains(string(raw), `23.976`) {
+		t.Fatalf("adjustments: %s", raw)
+	}
+	withShots := fitted.WithShots([]ShotFile{{Index: 1, Depth: "001.mp4"}})
+	if withShots.Version != ManifestVersionShots || len(withShots.Adjustments) != 1 {
+		t.Fatalf("shots kept adjustments: %+v", withShots)
+	}
+}
+
 func manifestKeys(t *testing.T, doc Manifest) []string {
 	t.Helper()
 	raw, err := json.Marshal(doc)

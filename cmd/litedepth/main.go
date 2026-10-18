@@ -65,6 +65,7 @@ func run() int {
 	root.Flags().BoolVar(&spec.Shots, "shots", false, t.FlagShots)
 	root.Flags().BoolVar(&spec.ShotCheck, "shot-check", false, t.FlagShotCheck)
 	root.Flags().BoolVar(&spec.HLS, "hls", false, t.FlagHLS)
+	root.Flags().BoolVar(&spec.Seedance, "seedance", false, t.FlagSeedance)
 
 	root.AddCommand(&cobra.Command{
 		Use:   "setup",

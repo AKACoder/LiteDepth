@@ -15,15 +15,16 @@ const (
 // Manifest is the description written next to one export.
 // Version is 1 until shots are attached, which makes it 2.
 type Manifest struct {
-	Version int              `json:"version"`
-	Source  string           `json:"source"`
-	Window  Window           `json:"window"`
-	FPS     string           `json:"fps"`
-	Width   int              `json:"width"`
-	Height  int              `json:"height"`
-	Outputs []ManifestOutput `json:"outputs"`
-	Shots   []ShotFile       `json:"shots,omitempty"`
-	Prompt  string           `json:"prompt"`
+	Version     int              `json:"version"`
+	Source      string           `json:"source"`
+	Window      Window           `json:"window"`
+	FPS         string           `json:"fps"`
+	Width       int              `json:"width"`
+	Height      int              `json:"height"`
+	Outputs     []ManifestOutput `json:"outputs"`
+	Shots       []ShotFile       `json:"shots,omitempty"`
+	Adjustments []string         `json:"adjustments,omitempty"`
+	Prompt      string           `json:"prompt"`
 }
 
 // ManifestOutput is one file this run wrote.
@@ -70,6 +71,15 @@ func BuildManifest(spec Spec, fps string, win Window, width, height int) Manifes
 // WithShots records the per-shot files and asks the prompt to refer to each shot.
 // The copy is version 2. A manifest built without this call stays version 1 and
 // has no shots key.
+// WithAdjustments records what --seedance changed. The version stays as it was.
+func (m Manifest) WithAdjustments(lines []string) Manifest {
+	if len(lines) == 0 {
+		return m
+	}
+	m.Adjustments = append([]string(nil), lines...)
+	return m
+}
+
 func (m Manifest) WithShots(shots []ShotFile) Manifest {
 	m.Version = ManifestVersionShots
 	m.Shots = shots

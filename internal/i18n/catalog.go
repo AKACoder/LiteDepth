@@ -21,6 +21,7 @@ type Catalog struct {
 	FlagShots         string
 	FlagShotCheck     string
 	FlagHLS           string
+	FlagSeedance      string
 
 	CobraUsage       string
 	CobraHelpCommand string
@@ -53,6 +54,10 @@ type Catalog struct {
 	ErrShotsPreview       string
 	ErrShotCheckOnly      string
 	ErrHLS                string
+	ErrSeedancePreview    string
+	ErrSeedanceLimits     string
+	ErrSeedanceShots      string
+	ErrSeedanceSize       string
 	ErrNoShots            string
 	ErrShotAlign          string
 	ErrStitchFailed       string
@@ -98,9 +103,13 @@ type Catalog struct {
 	PlanShots     string
 	PlanShotCheck string
 	PlanHLS       string
+	PlanSeedance  string
 	PlanRate      string
 
-	LogShots string
+	LogShots        string
+	LogSeedance     string
+	LogSeedanceOK   string
+	LogSeedanceFace string
 
 	PromptDepth string
 	PromptFill  string

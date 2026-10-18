@@ -13,6 +13,8 @@ type Source struct {
 	DurationS float64
 	FPS       float64
 	Rate      string
+	Width     int
+	Height    int
 }
 
 // Frames is a numbered PNG sequence on one time grid.
@@ -49,6 +51,8 @@ func Probe(path string) (Source, error) {
 		DurationS: info.DurationS,
 		FPS:       info.SourceFPS,
 		Rate:      info.Rate(),
+		Width:     info.Width,
+		Height:    info.Height,
 	}, nil
 }
 

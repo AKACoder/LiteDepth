@@ -154,6 +154,46 @@ func Extract(video, destDir string, startS, lengthS float64, longEdge int) ([]st
 	return sortStrings(frames), nil
 }
 
+// ExtractFitted reads the window and scales it to an exact even size.
+// A non-zero crop is applied first, centered on the source frame.
+func ExtractFitted(video, destDir string, startS, lengthS float64, cropX, cropY, cropW, cropH, outW, outH int) ([]string, error) {
+	ffmpeg, _, err := LookPath()
+	if err != nil {
+		return nil, err
+	}
+	if err := os.MkdirAll(destDir, 0o755); err != nil {
+		return nil, err
+	}
+	matches, _ := filepath.Glob(filepath.Join(destDir, "*.png"))
+	for _, p := range matches {
+		_ = os.Remove(p)
+	}
+	vf := fmt.Sprintf("scale=%d:%d:flags=lanczos", outW, outH)
+	if cropW > 0 && cropH > 0 {
+		vf = fmt.Sprintf("crop=%d:%d:%d:%d,%s", cropW, cropH, cropX, cropY, vf)
+	}
+	args := []string{"-y"}
+	if startS > 0 {
+		args = append(args, "-ss", secs(startS))
+	}
+	args = append(args, "-i", video)
+	if lengthS > 0 {
+		args = append(args, "-t", secs(lengthS))
+	}
+	args = append(args, "-fps_mode", "passthrough", "-vf", vf, "-start_number", "1", filepath.Join(destDir, FramePattern))
+	if out, err := exec.Command(ffmpeg, args...).CombinedOutput(); err != nil {
+		return nil, fmt.Errorf(i18n.C().ErrExtractFailed, tail(out))
+	}
+	frames, err := filepath.Glob(filepath.Join(destDir, "*.png"))
+	if err != nil {
+		return nil, err
+	}
+	if len(frames) == 0 {
+		return nil, fmt.Errorf(i18n.C().ErrNoExtractedFrames, destDir)
+	}
+	return sortStrings(frames), nil
+}
+
 func ExtractAnchors(video, destDir string, startS, endS float64, n int, fps float64, longEdge int) ([]string, error) {
 	ffmpeg, _, err := LookPath()
 	if err != nil {

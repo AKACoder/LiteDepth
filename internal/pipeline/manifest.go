@@ -13,7 +13,7 @@ import (
 	"litedepth/internal/media"
 )
 
-func writeManifest(spec job.Spec, src media.Source, win job.Window, frames media.Frames, shots []job.ShotFile) error {
+func writeManifest(spec job.Spec, src media.Source, win job.Window, frames media.Frames, shots []job.ShotFile, adjustments []string) error {
 	if !spec.Manifest {
 		return nil
 	}
@@ -28,6 +28,7 @@ func writeManifest(spec job.Spec, src media.Source, win job.Window, frames media
 	if spec.Shots {
 		doc = doc.WithShots(shots)
 	}
+	doc = doc.WithAdjustments(adjustments)
 	raw, err := json.MarshalIndent(doc, "", "  ")
 	if err != nil {
 		return err

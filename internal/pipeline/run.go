@@ -24,6 +24,9 @@ func Run(ctx context.Context, spec job.Spec, src media.Source, win job.Window) e
 	if spec.ShotCheck {
 		return writeShotCheck(work, spec, src, win)
 	}
+	if spec.Seedance && !spec.Shots {
+		return runSeedanceClip(ctx, work, spec, src, win)
+	}
 
 	rgb, err := extractRGB(spec, src, filepath.Join(work, "frames"), win)
 	if err != nil {
@@ -53,7 +56,7 @@ func Run(ctx context.Context, spec job.Spec, src media.Source, win job.Window) e
 			fmt.Println(i18n.C().LogWrote, clayOut)
 			_ = ffmpegx.Open(clayOut)
 		}
-		return writeManifest(spec, src, win, frames, nil)
+		return writeManifest(spec, src, win, frames, nil, nil)
 	}
 
 	clip := filepath.Join(work, "depth.mp4")
@@ -111,5 +114,12 @@ func Run(ctx context.Context, spec job.Spec, src media.Source, win job.Window) e
 			return err
 		}
 	}
-	return writeManifest(spec, src, win, frames, shots)
+	var adjustments []string
+	if spec.Seedance && spec.Shots {
+		adjustments, err = writeSeedanceUpload(ctx, work, spec, src, win, frames, clay)
+		if err != nil {
+			return err
+		}
+	}
+	return writeManifest(spec, src, win, frames, shots, adjustments)
 }

@@ -33,6 +33,7 @@ var zh = Catalog{
 	FlagShots:         "按镜头切点再切开深度视频",
 	FlagShotCheck:     "按镜头切点切开原片，用来检查切点",
 	FlagHLS:           "另外写出 HLS 播放列表，让 VLC 把这些镜头连成一条流",
+	FlagSeedance:      "按 Seedance 2.5 参考视频限制调整深度视频",
 
 	CobraUsage: `用法:{{if .Runnable}}
   {{.UseLine}}{{end}}{{if .HasAvailableSubCommands}}
@@ -88,6 +89,10 @@ var zh = Catalog{
 	ErrShotsPreview:       "--shots 不能和 --preview 一起使用",
 	ErrShotCheckOnly:      "--shot-check 只切原片",
 	ErrHLS:                "--hls 需要和 --shots 或 --shot-check 一起使用",
+	ErrSeedancePreview:    "--seedance 不能和 --preview 一起使用",
+	ErrSeedanceLimits:     "这幅画面放不进 Seedance 2.5 的参考视频限制",
+	ErrSeedanceShots:      "镜头太多，放不进 30 秒",
+	ErrSeedanceSize:       "文件仍然超过 200 MB",
 	ErrNoShots:            "没有可写出的镜头",
 	ErrShotAlign:          "切点帧数和深度帧数对不上（%d 与 %d）",
 	ErrStitchFailed:       "拼片失败：%s",
@@ -133,9 +138,13 @@ var zh = Catalog{
 	PlanShots:     "  shots      %s",
 	PlanShotCheck: "  shot-check %s",
 	PlanHLS:       "  hls        %s",
+	PlanSeedance:  "  seedance   %s",
 	PlanRate:      "  rate       %s",
 
-	LogShots: "shots      %d",
+	LogShots:        "shots      %d",
+	LogSeedance:     "seedance   %s",
+	LogSeedanceOK:   "seedance   已满足",
+	LogSeedanceFace: "seedance   不检查真人脸",
 
 	PromptDepth: "深度视频是近亮远暗。",
 	PromptFill:  "【在此填写主体、动作、场景、风格】",

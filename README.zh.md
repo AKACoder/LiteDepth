@@ -177,6 +177,7 @@ go build -o litedepth ./cmd/litedepth
 ## 📜 技术栈与致谢
 
 - 模型架构：[Depth Anything V2 Small](https://github.com/DepthAnything/Depth-Anything-V2)
+- 镜头切分：[TransNet V2](https://github.com/soCzech/TransNetV2)，仅在 `--shots`、`--shot-check`，或 `--seedance` 与 `--shots` 一起使用时运行
 - 推理引擎：[ONNX Runtime](https://onnxruntime.ai/)（通过 [onnxruntime_go](https://github.com/yalue/onnxruntime_go) 提供 CGO 绑定）
 - 音视频处理：[FFmpeg](https://ffmpeg.org/)
 

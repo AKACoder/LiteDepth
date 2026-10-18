@@ -177,6 +177,7 @@ go build -o litedepth ./cmd/litedepth
 ## Tech Stack & Credits
 
 - Model: [Depth Anything V2 Small](https://github.com/DepthAnything/Depth-Anything-V2)
+- Shot detection: [TransNet V2](https://github.com/soCzech/TransNetV2), only with `--shots`, `--shot-check`, or `--seedance` together with `--shots`
 - Inference Runtime: [ONNX Runtime](https://onnxruntime.ai/) via [onnxruntime_go](https://github.com/yalue/onnxruntime_go)
 - Media Processing: [FFmpeg](https://ffmpeg.org/)
 

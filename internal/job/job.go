@@ -8,7 +8,7 @@ import (
 	"litedepth/internal/i18n"
 )
 
-const Version = "0.2.0"
+const Version = "0.3.0"
 
 const (
 	PreviewDefault = 3

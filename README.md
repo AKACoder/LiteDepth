@@ -2,7 +2,7 @@
 
 English | [简体中文](README.zh.md)
 
-[![Version](https://img.shields.io/badge/version-0.2.0-blue.svg)](#)
+[![Version](https://img.shields.io/badge/version-0.3.0-blue.svg)](#)
 [![License](https://img.shields.io/badge/license-Apache--2.0-green.svg)](LICENSE)
 [![Go Version](https://img.shields.io/badge/Go-1.25+-00ADD8.svg?logo=go&logoColor=white)](#)
 
@@ -106,10 +106,10 @@ The full depth video is unchanged. `clip.depth.shots/` holds one depth mp4 per s
 
 **Fit a Seedance 2.5 reference**:
 ```bash
-./litedepth --seedance --scale 512 clip.mp4
+./litedepth --seedance clip.mp4
 ./litedepth --shots --seedance --scale 512 clip.mp4
 ```
-`--seedance` fits the depth video (and the clay video, when asked) to the Seedance 2.5 reference limits: each clip 2–30 seconds, at most 10 clips, 30 seconds in total, aspect between 0.4 and 2.5, and a legal frame size and frame rate. Without `--shots`, that fitted file is the depth output. With `--shots`, the full depth video and `clip.depth.shots/` stay as they are, and a separate `clip.depth.seedance/` holds the upload set. Shots shorter than 2 seconds are joined into the next one, or into the previous one when the short shot is last. That join is only in the upload set. `--seedance` cannot be combined with `--preview` or `--shot-check`.
+`--seedance` fits the depth video, and the clay video when asked, to the Seedance 2.5 reference limits: each clip 2–30 seconds, at most 10 clips, 30 seconds in total, aspect between 0.4 and 2.5, edges and pixel count in range, frame rate from 24 to 60, AAC or MP3 audio, and at most 200 MB. Without `--shots`, that fitted file is the depth output. A window longer than 30 seconds keeps its first 30 seconds. A window shorter than 2 seconds is extended forward into the rest of the source, then backward if it is still short, or slowed to 2 seconds when the source itself is shorter. `--scale 512` is raised to the smallest legal frame while this flag is on. With `--shots`, the full depth video and `clip.depth.shots/` stay at the scale you asked for, and `clip.depth.seedance/` is the fitted upload set. Shots shorter than 2 seconds are joined into the next one, or into the previous one when the short shot is last. That join is only in the upload set. `--seedance` cannot be combined with `--preview` or `--shot-check`.
 
 **Watch the depth beside the source**:
 ```bash
@@ -137,7 +137,7 @@ The depth video is still written. A second file, `clip.depth.compare.mp4`, plays
 | `--shot-check` | Cut the source video at shot changes and re-encode it, so the cuts can be checked. No depth video is written. |
 | `--shots` | Cut the depth video at the same shot changes. The full depth video stays as it is. |
 | `--hls` | With `--shots` or `--shot-check`, also write an HLS playlist and transport-stream segments so VLC can play the shots as one stream. |
-| `--seedance` | Fit the depth video to Seedance 2.5 reference limits. With `--shots`, write that set beside the unchanged hard cuts. |
+| `--seedance` | Fit the depth video to Seedance 2.5 reference limits. Without `--shots`, that file is the depth output, and a 512 long edge is raised when it is too small. With `--shots`, the full export stays and the fitted set is written to `clip.depth.seedance/`. |
 | `--frames` | Save individual depth maps as a PNG sequence alongside the video (ignored when `--preview` is enabled). |
 | `--output <path>` | Custom destination path for the output video or preview image. |
 

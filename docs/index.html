@@ -238,7 +238,7 @@
       <div class="section-headline">
         <span class="section-tag" data-i18n="cli_tag">COMMAND LINE WORKFLOW</span>
         <h2 class="section-main-title" data-i18n="cli_title">Dead Simple Command Interface</h2>
-        <p class="section-sub-desc" data-i18n="cli_desc">Just provide a video path to trigger automated frame extraction, inference, and video remuxing.</p>
+        <p class="section-sub-desc" data-i18n="cli_desc">The default command writes one depth video. The flags below stay off unless you set them.</p>
       </div>
 
       <div class="cli-deck-wrapper">
@@ -253,10 +253,34 @@
           <button type="button" class="cli-tab-item" data-mode="duration" onclick="switchCliMode('duration')">
             <span data-i18n="cli_m3">3. Short Clip</span>
           </button>
+          <button type="button" class="cli-tab-item" data-mode="window" onclick="switchCliMode('window')">
+            <span data-i18n="cli_m4">4. Window</span>
+          </button>
+          <button type="button" class="cli-tab-item" data-mode="scale" onclick="switchCliMode('scale')">
+            <span data-i18n="cli_m5">5. Draft Scale</span>
+          </button>
+          <button type="button" class="cli-tab-item" data-mode="clay" onclick="switchCliMode('clay')">
+            <span data-i18n="cli_m6">6. Clay</span>
+          </button>
+          <button type="button" class="cli-tab-item" data-mode="manifest" onclick="switchCliMode('manifest')">
+            <span data-i18n="cli_m7">7. Manifest</span>
+          </button>
+          <button type="button" class="cli-tab-item" data-mode="shotcheck" onclick="switchCliMode('shotcheck')">
+            <span data-i18n="cli_m8">8. Shot Check</span>
+          </button>
+          <button type="button" class="cli-tab-item" data-mode="shots" onclick="switchCliMode('shots')">
+            <span data-i18n="cli_m9">9. Shots</span>
+          </button>
+          <button type="button" class="cli-tab-item" data-mode="seedance" onclick="switchCliMode('seedance')">
+            <span data-i18n="cli_m10">10. Seedance</span>
+          </button>
+          <button type="button" class="cli-tab-item" data-mode="compare" onclick="switchCliMode('compare')">
+            <span data-i18n="cli_m11">11. Compare</span>
+          </button>
         </div>
 
         <div class="cli-code-canvas">
-          <div id="cli-comment" class="cli-comment-line"># Export full depth video (auto-scaled to &lt;= 1024px, preserving audio)</div>
+          <div id="cli-comment" class="cli-comment-line"># Export the full depth video. Default long edge 1024, original audio and frame rate kept. Near-bright, far-dark.</div>
           <div class="cli-cmd-row">
             <div>
               <span class="cli-prompt-symbol">$</span>
@@ -282,7 +306,7 @@
             </div>
             <div class="cli-spec-cell">
               <span data-i18n="spec_scale_lbl">RESOLUTION</span>
-              <strong data-i18n="spec_scale_val">Auto-constrained long edge ≤ 1024</strong>
+              <strong id="cli-spec-scale">Default long edge 1024</strong>
             </div>
           </div>
         </div>
@@ -414,21 +438,91 @@
     const CLI_MODES = {
       full: {
         cmd: "./litedepth clip.mp4",
-        commentZh: "# 导出整段深度视频（长边自动适配至 1024px，无损封装原音轨）",
-        commentEn: "# Export full depth video (auto-scaled to <= 1024px, preserving audio)",
-        out: "clip.depth.mp4"
+        commentZh: "# 导出整段深度视频。长边默认 1024，保留原音轨与帧率。近亮远暗。",
+        commentEn: "# Export the full depth video. Default long edge 1024, original audio and frame rate kept. Near-bright, far-dark.",
+        out: "clip.depth.mp4",
+        scaleZh: "默认长边 1024",
+        scaleEn: "Default long edge 1024"
       },
       preview: {
         cmd: "./litedepth --preview clip.mp4",
-        commentZh: "# 极速抽取关键帧，生成左原片右深度对照长图并自动调起查看",
-        commentEn: "# Fast sample keyframes, create side-by-side contact sheet and auto-open",
-        out: "clip.depth.preview.jpg"
+        commentZh: "# 均匀抽 3 帧，写出左原片、右深度的对照长图并打开。不写深度视频。",
+        commentEn: "# Sample 3 frames, write a source-left depth-right sheet, and open it. No depth video.",
+        out: "clip.depth.preview.jpg",
+        scaleZh: "默认长边 1024",
+        scaleEn: "Default long edge 1024"
       },
       duration: {
         cmd: "./litedepth --duration 5 clip.mp4",
-        commentZh: "# 仅处理前 5 秒内容，极速检验动态景深效果",
-        commentEn: "# Process only first 5 seconds to rapidly verify motion depth",
-        out: "clip.depth.mp4"
+        commentZh: "# 只处理开头 5 秒。不写 --start 时，--duration 就是从片头起的长度。",
+        commentEn: "# Process the first 5 seconds. With no --start, --duration is the opening length.",
+        out: "clip.depth.mp4",
+        scaleZh: "默认长边 1024",
+        scaleEn: "Default long edge 1024"
+      },
+      window: {
+        cmd: "./litedepth --start 8 --end 12 clip.mp4",
+        commentZh: "# 半开窗口：含 8 秒，不含 12 秒。音轨取自这段，不是从文件开头截。",
+        commentEn: "# Half-open window: 8 included, 12 excluded. Audio comes from that window.",
+        out: "clip.depth.mp4",
+        scaleZh: "默认长边 1024",
+        scaleEn: "Default long edge 1024"
+      },
+      scale: {
+        cmd: "./litedepth --scale 512 --preview --start 8 --end 12 clip.mp4",
+        commentZh: "# 长边只能是 512 或 1024。512 跳过宽画面分块，网络输入仍是 518。",
+        commentEn: "# Long edge is 512 or 1024. 512 skips wide-frame tiling. Network input stays 518.",
+        out: "clip.depth.preview.jpg",
+        scaleZh: "长边 512",
+        scaleEn: "Long edge 512"
+      },
+      clay: {
+        cmd: "./litedepth --clay --duration 3 clip.mp4",
+        commentZh: "# 深度视频不变。白模用色调映射之前的深度，近亮远暗，时间窗和音轨一致。",
+        commentEn: "# Depth video stays. Clay is shaded from the depth before the view curve, same window and audio.",
+        out: "clip.depth.clay.mp4",
+        scaleZh: "默认长边 1024",
+        scaleEn: "Default long edge 1024"
+      },
+      manifest: {
+        cmd: "./litedepth --manifest clip.mp4",
+        commentZh: "# 写出时间窗、帧尺寸、输出路径和提示词草稿。创作内容留空。",
+        commentEn: "# Write the window, frame size, output paths, and a prompt draft. The creative line stays blank.",
+        out: "clip.depth.manifest.json",
+        scaleZh: "默认长边 1024",
+        scaleEn: "Default long edge 1024"
+      },
+      shotcheck: {
+        cmd: "./litedepth --shot-check --scale 512 clip.mp4",
+        commentZh: "# 只切原片，不写深度。短镜头保留。--hls 写出播放列表，VLC 可连着播。",
+        commentEn: "# Cut the source only. No depth video. Short shots are kept. --hls writes a playlist VLC can play as one stream.",
+        out: "clip.shots/",
+        scaleZh: "长边 512",
+        scaleEn: "Long edge 512"
+      },
+      shots: {
+        cmd: "./litedepth --shots --scale 512 clip.mp4",
+        commentZh: "# 整段深度视频保持不变。切点在原片上计算，再套到深度帧。短镜头保留。--hls 可连成一条流。",
+        commentEn: "# The full depth video stays. Cuts are found on the source and applied to the depth frames. Short shots are kept. --hls plays them as one stream.",
+        out: "clip.depth.shots/",
+        scaleZh: "长边 512",
+        scaleEn: "Long edge 512"
+      },
+      seedance: {
+        cmd: "./litedepth --seedance clip.mp4",
+        commentZh: "# 不带 --shots 时，适配结果就是深度视频：超过 30 秒只留开头，短于 2 秒先向后补再向前补，仍不够就放慢。512 过小会被升高。带上 --shots 时，整段和 .shots 保持原缩放，上传集在 clip.depth.seedance/。",
+        commentEn: "# Without --shots, the fitted file is the depth output: past 30 seconds the first 30 are kept, and under 2 seconds it extends forward, then backward, or slows. A 512 long edge is raised when too small. With --shots, the full file and .shots stay, and clip.depth.seedance/ is the upload set.",
+        out: "clip.depth.mp4",
+        scaleZh: "过小的长边会升高到合法尺寸",
+        scaleEn: "A too-small long edge is raised"
+      },
+      compare: {
+        cmd: "./litedepth --compare --start 8 --end 12 --scale 512 clip.mp4",
+        commentZh: "# 深度视频照旧写出。旁边的并排视频左边是原片、右边是深度，写完后打开。不能和 --preview 一起用。",
+        commentEn: "# The depth video is still written. The extra file plays source on the left and depth on the right, then opens. Not with --preview.",
+        out: "clip.depth.compare.mp4",
+        scaleZh: "长边 512",
+        scaleEn: "Long edge 512"
       }
     };
 
@@ -463,15 +557,23 @@
         feat_3_d: "内置多阶自适应时序平滑与 Look 增强算法，有效平抑单目逐帧估计常见的亮度跳跃与高频闪烁，生成稳定连贯的动态深度图。",
         cli_tag: "COMMAND LINE WORKFLOW",
         cli_title: "极致简洁的命令行交互",
-        cli_desc: "开箱即用，只需传入视频路径即可自动化完成抽帧、推理与封装。",
+        cli_desc: "默认只写一条深度视频。下面的参数不写，导出就和原来一样。",
         cli_m1: "1. 完整导出",
         cli_m2: "2. 对照长图",
         cli_m3: "3. 前段试看",
+        cli_m4: "4. 时间窗",
+        cli_m5: "5. 半长边",
+        cli_m6: "6. 白模",
+        cli_m7: "7. 任务说明",
+        cli_m8: "8. 检查切点",
+        cli_m9: "9. 切开镜头",
+        cli_m10: "10. 参考适配",
+        cli_m11: "11. 并排观看",
         spec_out_lbl: "输出路径",
         spec_curve_lbl: "灰度标尺",
         spec_curve_val: "近亮远暗 (0 ~ 255)",
         spec_scale_lbl: "采样规格",
-        spec_scale_val: "长边自动约束 ≤ 1024",
+        spec_scale_val: "默认长边 1024",
         dl_tag: "STANDALONE BINARIES",
         dl_title: "跨平台预编译版本",
         dl_desc: "原生支持 Apple Silicon macOS、Linux 与 64 位 Windows。下载后赋予执行权限即可直接运行。",
@@ -508,15 +610,23 @@
         feat_3_d: "Built-in multi-stage temporal smoothing and Look tone mapping to eliminate inter-frame flicker and edge jittering.",
         cli_tag: "COMMAND LINE WORKFLOW",
         cli_title: "Dead Simple Command Interface",
-        cli_desc: "Just provide a video path to trigger automated frame extraction, inference, and video remuxing.",
+        cli_desc: "The default command writes one depth video. The flags below stay off unless you set them.",
         cli_m1: "1. Full Export",
         cli_m2: "2. Preview Sheet",
         cli_m3: "3. Short Clip",
+        cli_m4: "4. Window",
+        cli_m5: "5. Draft Scale",
+        cli_m6: "6. Clay",
+        cli_m7: "7. Manifest",
+        cli_m8: "8. Shot Check",
+        cli_m9: "9. Shots",
+        cli_m10: "10. Seedance",
+        cli_m11: "11. Compare",
         spec_out_lbl: "OUTPUT PATH",
         spec_curve_lbl: "DEPTH SCALE",
         spec_curve_val: "Near-bright, far-dark (0 ~ 255)",
         spec_scale_lbl: "RESOLUTION",
-        spec_scale_val: "Auto-constrained long edge ≤ 1024",
+        spec_scale_val: "Default long edge 1024",
         dl_tag: "STANDALONE BINARIES",
         dl_title: "Cross-Platform Pre-built Binaries",
         dl_desc: "Native builds for Apple Silicon macOS, Linux, and 64-bit Windows. Download, chmod +x, and run directly.",
@@ -622,6 +732,8 @@
       commentEl.textContent = currentLang === "zh" ? info.commentZh : info.commentEn;
       cmdEl.textContent = info.cmd;
       outEl.textContent = info.out;
+      const scaleEl = document.getElementById("cli-spec-scale");
+      if (scaleEl) scaleEl.textContent = currentLang === "zh" ? info.scaleZh : info.scaleEn;
     }
 
     function copySnippet(text, btn) {

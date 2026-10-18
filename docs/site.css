@@ -713,6 +713,7 @@ video.monitor-video {
 .cli-deck-tabs {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   background: #0e0f15;
   border-bottom: 1px solid var(--border-subtle);
   padding: 6px 8px;

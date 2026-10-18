@@ -2,7 +2,7 @@
 
 [English](README.md) | 简体中文
 
-[![Version](https://img.shields.io/badge/version-0.2.0-blue.svg)](#)
+[![Version](https://img.shields.io/badge/version-0.3.0-blue.svg)](#)
 [![License](https://img.shields.io/badge/license-Apache--2.0-green.svg)](LICENSE)
 [![Go Version](https://img.shields.io/badge/Go-1.25+-00ADD8.svg?logo=go&logoColor=white)](#)
 
@@ -106,10 +106,10 @@
 
 **按 Seedance 2.5 参考视频来适配**：
 ```bash
-./litedepth --seedance --scale 512 clip.mp4
+./litedepth --seedance clip.mp4
 ./litedepth --shots --seedance --scale 512 clip.mp4
 ```
-`--seedance` 把深度视频（以及要求写出的白模）收进 Seedance 2.5 的参考限制：每段 2–30 秒，最多 10 段，合计不超过 30 秒，宽高比在 0.4 到 2.5 之间，帧尺寸和帧率也要合法。不带 `--shots` 时，这份适配结果就是深度视频本身。带上 `--shots` 时，整段深度视频和 `clip.depth.shots/` 保持原样，另写 `clip.depth.seedance/` 作为上传那一份。短于 2 秒的镜头并进下一段；最后一段太短时并进上一段。这个合并只发生在上传那一份里。`--seedance` 不能和 `--preview` 或 `--shot-check` 一起使用。
+`--seedance` 把深度视频，以及要求写出的白模，收进 Seedance 2.5 的参考限制：每段 2–30 秒，最多 10 段，合计不超过 30 秒，宽高比在 0.4 到 2.5 之间，边长和像素量落在区间内，帧率 24 到 60，音频为 AAC 或 MP3，文件不超过 200 MB。不带 `--shots` 时，这份适配结果就是深度视频本身。窗口长于 30 秒时只留开头 30 秒。短于 2 秒时先向后补画面，仍不够再向前补；原片本身仍不够，就把这一段放慢到 2 秒。打开这个参数时，`--scale 512` 会升到刚好合法的最小帧尺寸。带上 `--shots` 时，整段深度视频和 `clip.depth.shots/` 仍按你设的缩放写出，`clip.depth.seedance/` 才是适配后的上传那一份。短于 2 秒的镜头并进下一段；最后一段太短时并进上一段。这个合并只发生在上传那一份里。`--seedance` 不能和 `--preview` 或 `--shot-check` 一起使用。
 
 **把深度和原片并排看**：
 ```bash
@@ -137,7 +137,7 @@
 | `--shot-check` | 按镜头切点切开原片并重新编码，用来检查切点。不写深度视频。 |
 | `--shots` | 按同样的切点切开深度视频。整段深度视频保持原样。 |
 | `--hls` | 和 `--shots` 或 `--shot-check` 一起使用时，额外写出 HLS 播放列表和传输流切片，让 VLC 把这些镜头连成一条流。 |
-| `--seedance` | 按 Seedance 2.5 参考视频限制调整深度视频。和 `--shots` 一起用时，这份结果写在硬切旁边，硬切本身不变。 |
+| `--seedance` | 按 Seedance 2.5 参考视频限制调整深度视频。不带 `--shots` 时，这份结果就是深度视频本身，512 长边过小时会被升高。和 `--shots` 一起用时，整段成片保持原样，适配结果写在 `clip.depth.seedance/`。 |
 | `--frames` | 导出视频的同时，将单帧深度图以 PNG 序列保存在视频同级目录下（启用 `--preview` 时此项被忽略）。 |
 | `--output <路径>` | 自定义输出的视频或预览图片的目标路径。 |
 

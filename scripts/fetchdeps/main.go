@@ -15,7 +15,7 @@ import (
 	"runtime"
 )
 
-const ortVer = "1.29.0"
+const ortVer = "1.31.0"
 
 const depthURL = "https://github.com/fabio-sim/Depth-Anything-ONNX/releases/download/v2.0.0/depth_anything_v2_vits.onnx"
 

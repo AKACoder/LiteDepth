@@ -14,15 +14,15 @@ func TestTarMemberFollowsSONAMEChain(t *testing.T) {
 	archive := filepath.Join(dir, "ort.tgz")
 	writeTarGz(t, archive, []tarEntry{
 		{name: "onnxruntime/lib/libonnxruntime.so", link: "libonnxruntime.so.1"},
-		{name: "onnxruntime/lib/libonnxruntime.so.1", link: "libonnxruntime.so.1.29.0"},
-		{name: "onnxruntime/lib/libonnxruntime.so.1.29.0", body: []byte("ort")},
+		{name: "onnxruntime/lib/libonnxruntime.so.1", link: "libonnxruntime.so.1.31.0"},
+		{name: "onnxruntime/lib/libonnxruntime.so.1.31.0", body: []byte("ort")},
 	})
 
 	got, err := tarMember(archive, "libonnxruntime.so")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got != "onnxruntime/lib/libonnxruntime.so.1.29.0" {
+	if got != "onnxruntime/lib/libonnxruntime.so.1.31.0" {
 		t.Fatalf("member = %q", got)
 	}
 }
@@ -32,7 +32,7 @@ func TestTarMemberPrefersRegularFile(t *testing.T) {
 	archive := filepath.Join(dir, "ort.tgz")
 	writeTarGz(t, archive, []tarEntry{
 		{name: "onnxruntime/lib/libonnxruntime.dylib", body: []byte("dylib")},
-		{name: "onnxruntime/lib/libonnxruntime.1.dylib", link: "libonnxruntime.1.29.0.dylib"},
+		{name: "onnxruntime/lib/libonnxruntime.1.dylib", link: "libonnxruntime.1.31.0.dylib"},
 	})
 
 	got, err := tarMember(archive, "libonnxruntime.dylib")

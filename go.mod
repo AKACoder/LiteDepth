@@ -6,7 +6,7 @@ require (
 	github.com/charmbracelet/huh v1.0.0
 	github.com/schollz/progressbar/v3 v3.19.1
 	github.com/spf13/cobra v1.9.1
-	github.com/yalue/onnxruntime_go v1.36.0
+	github.com/yalue/onnxruntime_go v1.38.0
 )
 
 require (
